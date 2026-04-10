@@ -173,7 +173,7 @@ function clearPreferences() {
                 name="interests"
                 value={prefs.interests}
                 onChange={handleChange}
-                placeholder="e.g. gaming, gym, cooking, hiking..."
+                placeholder="e.g. gaming, gym, cooking, hiking, reading..."
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600] focus:border-transparent transition"
               />
             </div>
