@@ -189,7 +189,11 @@ export default function ExplorePage() {
                 key={profile.id}
                 className="rounded-[28px] border border-blue-700/40 bg-slate-900/95 p-6 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.9)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-30px_rgba(15,23,42,0.9)]"
               >
-                <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-950/40">
+                <div
+                  className={`mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br ${getAvatarColor(
+                    profile.id,
+                  )} text-white shadow-lg shadow-blue-950/40`}
+                >
                   <span className="text-3xl font-semibold">{profile.avatar_url}</span>
                 </div>
 
