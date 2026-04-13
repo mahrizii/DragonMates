@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const defaultPrefs = {
@@ -87,6 +87,18 @@ export default function PreferencesPage() {
   function handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
     setPrefs({ ...prefs, [e.target.name]: e.target.value });
   }
+
+  useEffect(() => {
+    const saved = localStorage.getItem("roommatePrefs");
+    const savedTime = localStorage.getItem("roommatePrefsTime");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setPrefs(parsed);
+      setSavedProfile(parsed);
+      setLastSaved(savedTime || null);
+      setMatchScore(87);
+    }
+  }, []);
 
   function savePreferences() {
     localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
