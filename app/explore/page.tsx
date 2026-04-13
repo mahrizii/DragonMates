@@ -1,5 +1,7 @@
 "use client";
 
+import Link from 'next/link';
+
 interface Profile {
   id: string;
   email: string;
@@ -176,6 +178,22 @@ export default function ExplorePage() {
           <p className="mt-4 max-w-2xl text-lg text-slate-300">
             Compare student profiles, shared routines, and lifestyle preferences to find the best match for your next housing term.
           </p>
+          <div className="mt-6">
+            <div className="flex gap-3">
+              <Link
+                href="/my-profile"
+                className="inline-flex items-center gap-2 rounded-full border border-green-400/20 bg-green-400/10 px-4 py-2 text-sm font-semibold text-green-200 hover:bg-green-400/20 transition-colors"
+              >
+                👤 My Profile
+              </Link>
+              <Link
+                href="/preferences"
+                className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-4 py-2 text-sm font-semibold text-blue-200 hover:bg-blue-400/20 transition-colors"
+              >
+                ⚙️ Edit Preferences
+              </Link>
+            </div>
+          </div>
         </div>
 
         {MOCK_PROFILES.length === 0 ? (
@@ -189,7 +207,11 @@ export default function ExplorePage() {
                 key={profile.id}
                 className="rounded-[28px] border border-blue-700/40 bg-slate-900/95 p-6 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.9)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-30px_rgba(15,23,42,0.9)]"
               >
-                <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-950/40">
+                <div
+                  className={`mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br ${getAvatarColor(
+                    profile.id,
+                  )} text-white shadow-lg shadow-blue-950/40`}
+                >
                   <span className="text-3xl font-semibold">{profile.avatar_url}</span>
                 </div>
 

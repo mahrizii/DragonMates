@@ -14,6 +14,10 @@ Schema for Supabase PostgreSQL Tables
 | social_links  | _text       |
 | avatar_url    | text        |
 
+# Auth Metadata
+
+User passwords are hashed using Node's `crypto.scryptSync()` with a 16-byte salt before registration. The resulting `salt:hash` string is saved in Supabase Auth's `user_metadata` as `password_hash`. No plaintext passwords are persisted anywhere in the database.
+
 # Academics
 
 | Column Name    | Type        |

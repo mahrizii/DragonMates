@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 
 const defaultPrefs = {
   sleepSchedule: "",
@@ -29,7 +30,6 @@ function savePreferences() {
   localStorage.setItem("roommatePrefsTime", time);
   setLastSaved(time);
   setSaveMsg("Preferences saved!");
-  setTimeout(() => setSaveMsg(""), 3000);
 }
 
 function loadPreferences() {
@@ -41,7 +41,6 @@ function loadPreferences() {
     setSavedProfile(parsed);
     setSaveMsg("Preferences loaded!");
     setLastSaved(savedTime || null);
-    setTimeout(() => setSaveMsg(""), 3000);
 
     // Stub: set a fake match score for demonstration
     setMatchScore(87);
@@ -54,7 +53,6 @@ function loadPreferences() {
 }
 
 function clearPreferences() {
-    if (!confirm("Clear all saved preferences?")) return;
   localStorage.removeItem("roommatePrefs");
   localStorage.removeItem("roommatePrefsTime");
   setPrefs({ ...defaultPrefs });
@@ -62,7 +60,6 @@ function clearPreferences() {
   setMatchScore(null);
   setLastSaved(null);
   setSaveMsg("Preferences cleared!");
-  setTimeout(() => setSaveMsg(""), 3000);
 }
 
   const fields = [
@@ -128,6 +125,67 @@ function clearPreferences() {
     },
   ];
 
+export default function PreferencesPage() {
+  const [prefs, setPrefs] = useState({ ...defaultPrefs });
+  const [savedProfile, setSavedProfile] = useState<null | typeof defaultPrefs>(null);
+  const [matchScore, setMatchScore] = useState<number | null>(null);
+  const [saveMsg, setSaveMsg] = useState("");
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+
+  function handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
+    setPrefs({ ...prefs, [e.target.name]: e.target.value });
+  }
+
+  useEffect(() => {
+    const saved = localStorage.getItem("roommatePrefs");
+    const savedTime = localStorage.getItem("roommatePrefsTime");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setPrefs(parsed);
+      setSavedProfile(parsed);
+      setLastSaved(savedTime || null);
+      setMatchScore(87);
+    }
+  }, []);
+
+  function savePreferences() {
+    localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
+    const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
+    localStorage.setItem("roommatePrefsTime", time);
+    setLastSaved(time);
+    setSaveMsg("Preferences saved!");
+  }
+
+  function previewPreferences() {
+    const saved = localStorage.getItem("roommatePrefs");
+    const savedTime = localStorage.getItem("roommatePrefsTime");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setPrefs(parsed);
+      setSavedProfile(parsed);
+      setSaveMsg("Preferences preview loaded!");
+      setLastSaved(savedTime || null);
+
+      // Stub: set a fake match score for demonstration
+      setMatchScore(87);
+    } else {
+      setSaveMsg("No saved preferences found to preview.");
+      setSavedProfile(null);
+      setMatchScore(null);
+      setLastSaved(null);
+    }
+  }
+
+  function clearPreferences() {
+    localStorage.removeItem("roommatePrefs");
+    localStorage.removeItem("roommatePrefsTime");
+    setPrefs({ ...defaultPrefs });
+    setSavedProfile(null);
+    setMatchScore(null);
+    setLastSaved(null);
+    setSaveMsg("Preferences cleared!");
+  }
+
   return (
     <div className="min-h-screen bg-[#f5f6fa] font-sans">
 
@@ -137,7 +195,14 @@ function clearPreferences() {
           <h1 className="text-2xl font-bold text-[#ffc600] tracking-wide">Dragonmates</h1>
           <p className="text-blue-200 text-sm mt-0.5">Find your perfect roommate match</p>
         </div>
-        <span className="text-blue-300 text-sm font-medium">Living Style & Preferences</span>
+        <div className="flex gap-3">
+          <Link href="/my-profile" className="px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition">
+            My Profile
+          </Link>
+          <Link href="/explore" className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+            Explore
+          </Link>
+        </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-6 py-10 space-y-8">
@@ -181,35 +246,29 @@ function clearPreferences() {
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600] focus:border-transparent transition"
               />
             </div>
-          </div>
-        </div>
 
-        {/* Saved Profile Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-[#07294d] px-6 py-4">
-            <h2 className="text-white font-semibold text-lg">Your Saved Profile</h2>
-          </div>
-          <div className="p-6">
-            {savedProfile ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {[
-                  { label: "Sleep", value: savedProfile.sleepSchedule },
-                  { label: "Cleanliness", value: savedProfile.cleanliness },
-                  { label: "Noise", value: savedProfile.noise },
-                  { label: "Guests", value: savedProfile.guests },
-                  { label: "Social Battery", value: savedProfile.socialBattery },
-                  { label: "Pets", value: savedProfile.pets },
-                  { label: "Interests", value: savedProfile.interests },
-                ].map(({ label, value }) => (
-                  <div key={label} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                    <p className="text-xs font-semibold text-gray-800 uppercase tracking-wider mb-1">{label}</p>
-                    <p className="text-sm text-gray-700 capitalize">{value || "—"}</p>
-                  </div>
-                ))}
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-gray-800 uppercase tracking-wider mb-1.5">
+                Monthly Budget ($)
+              </label>
+              <div className="space-y-2">
+                <input
+                  type="range"
+                  name="budget"
+                  min="500"
+                  max="3000"
+                  step="50"
+                  value={prefs.budget}
+                  onChange={handleChange}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>$500</span>
+                  <span className="font-semibold text-gray-700">${prefs.budget}</span>
+                  <span>$3000</span>
+                </div>
               </div>
-            ) : (
-              <p className="text-gray-400 text-sm">No profile saved yet. Fill out the form and hit Save.</p>
-            )}
+            </div>
           </div>
         </div>
 
@@ -230,7 +289,7 @@ function clearPreferences() {
                 </div>
               </div>
             ) : (
-              <p className="text-gray-400 text-sm">Load your saved preferences to see your match score.</p>
+              <p className="text-gray-400 text-sm">Save your preferences to view your profile and match score.</p>
             )}
           </div>
         </div>
@@ -238,7 +297,7 @@ function clearPreferences() {
         {/* Button Container */}
         <div className="flex gap-3 justify-center">
           <button onClick={savePreferences} className="px-6 py-2 bg-[#ffc600] text-[#07294d] font-semibold rounded-lg hover:bg-yellow-500 transition">Save</button>
-          <button onClick={loadPreferences} className="px-6 py-2 bg-[#07294d] text-white font-semibold rounded-lg hover:bg-blue-900 transition">Load</button>
+          <Link href="/my-profile" className="px-6 py-2 bg-[#07294d] text-white font-semibold rounded-lg hover:bg-blue-900 transition inline-block text-center">Preview</Link>
           <button onClick={clearPreferences} className="px-6 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition">Clear</button>
         </div>
         {saveMsg && <p className="text-center text-sm text-gray-600">{saveMsg}</p>}
