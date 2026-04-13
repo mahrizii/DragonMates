@@ -179,12 +179,20 @@ export default function ExplorePage() {
             Compare student profiles, shared routines, and lifestyle preferences to find the best match for your next housing term.
           </p>
           <div className="mt-6">
-            <Link
-              href="/preferences"
-              className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-4 py-2 text-sm font-semibold text-blue-200 hover:bg-blue-400/20 transition-colors"
-            >
-              ⚙️ Edit Preferences
-            </Link>
+            <div className="flex gap-3">
+              <Link
+                href="/my-profile"
+                className="inline-flex items-center gap-2 rounded-full border border-green-400/20 bg-green-400/10 px-4 py-2 text-sm font-semibold text-green-200 hover:bg-green-400/20 transition-colors"
+              >
+                👤 My Profile
+              </Link>
+              <Link
+                href="/preferences"
+                className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-4 py-2 text-sm font-semibold text-blue-200 hover:bg-blue-400/20 transition-colors"
+              >
+                ⚙️ Edit Preferences
+              </Link>
+            </div>
           </div>
         </div>
 

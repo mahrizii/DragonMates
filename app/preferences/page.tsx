@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 const defaultPrefs = {
   sleepSchedule: "",
@@ -12,55 +13,6 @@ const defaultPrefs = {
   interests: "",
   budget: 1000,
 };
-
-export default function PreferencesPage() {
- const [prefs, setPrefs] = useState({ ...defaultPrefs });
-const [savedProfile, setSavedProfile] = useState<null | typeof defaultPrefs>(null);
-const [matchScore, setMatchScore] = useState<number | null>(null);
-const [saveMsg, setSaveMsg] = useState("");
-const [lastSaved, setLastSaved] = useState<string | null>(null);
-
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
-    setPrefs({ ...prefs, [e.target.name]: e.target.value });
-  }
-
-function savePreferences() {
-  localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
-  const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
-  localStorage.setItem("roommatePrefsTime", time);
-  setLastSaved(time);
-  setSaveMsg("Preferences saved!");
-}
-
-function loadPreferences() {
-  const saved = localStorage.getItem("roommatePrefs");
-  const savedTime = localStorage.getItem("roommatePrefsTime");
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    setPrefs(parsed);
-    setSavedProfile(parsed);
-    setSaveMsg("Preferences loaded!");
-    setLastSaved(savedTime || null);
-
-    // Stub: set a fake match score for demonstration
-    setMatchScore(87);
-  } else {
-    setSaveMsg("No saved preferences found.");
-    setSavedProfile(null);
-    setMatchScore(null);
-    setLastSaved(null);
-  }
-}
-
-function clearPreferences() {
-  localStorage.removeItem("roommatePrefs");
-  localStorage.removeItem("roommatePrefsTime");
-  setPrefs({ ...defaultPrefs });
-  setSavedProfile(null);
-  setMatchScore(null);
-  setLastSaved(null);
-  setSaveMsg("Preferences cleared!");
-}
 
   const fields = [
     {
@@ -125,6 +77,55 @@ function clearPreferences() {
     },
   ];
 
+export default function PreferencesPage() {
+  const [prefs, setPrefs] = useState({ ...defaultPrefs });
+  const [savedProfile, setSavedProfile] = useState<null | typeof defaultPrefs>(null);
+  const [matchScore, setMatchScore] = useState<number | null>(null);
+  const [saveMsg, setSaveMsg] = useState("");
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+
+  function handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
+    setPrefs({ ...prefs, [e.target.name]: e.target.value });
+  }
+
+  function savePreferences() {
+    localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
+    const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
+    localStorage.setItem("roommatePrefsTime", time);
+    setLastSaved(time);
+    setSaveMsg("Preferences saved!");
+  }
+
+  function previewPreferences() {
+    const saved = localStorage.getItem("roommatePrefs");
+    const savedTime = localStorage.getItem("roommatePrefsTime");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setPrefs(parsed);
+      setSavedProfile(parsed);
+      setSaveMsg("Preferences preview loaded!");
+      setLastSaved(savedTime || null);
+
+      // Stub: set a fake match score for demonstration
+      setMatchScore(87);
+    } else {
+      setSaveMsg("No saved preferences found to preview.");
+      setSavedProfile(null);
+      setMatchScore(null);
+      setLastSaved(null);
+    }
+  }
+
+  function clearPreferences() {
+    localStorage.removeItem("roommatePrefs");
+    localStorage.removeItem("roommatePrefsTime");
+    setPrefs({ ...defaultPrefs });
+    setSavedProfile(null);
+    setMatchScore(null);
+    setLastSaved(null);
+    setSaveMsg("Preferences cleared!");
+  }
+
   return (
     <div className="min-h-screen bg-[#f5f6fa] font-sans">
 
@@ -134,7 +135,14 @@ function clearPreferences() {
           <h1 className="text-2xl font-bold text-[#ffc600] tracking-wide">Dragonmates</h1>
           <p className="text-blue-200 text-sm mt-0.5">Find your perfect roommate match</p>
         </div>
-        <span className="text-blue-300 text-sm font-medium">Living Style & Preferences</span>
+        <div className="flex gap-3">
+          <Link href="/my-profile" className="px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition">
+            My Profile
+          </Link>
+          <Link href="/explore" className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+            Explore
+          </Link>
+        </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-6 py-10 space-y-8">
@@ -204,36 +212,6 @@ function clearPreferences() {
           </div>
         </div>
 
-        {/* Saved Profile Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-[#07294d] px-6 py-4">
-            <h2 className="text-white font-semibold text-lg">Your Saved Profile</h2>
-          </div>
-          <div className="p-6">
-            {savedProfile ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {[
-                  { label: "Sleep", value: savedProfile.sleepSchedule },
-                  { label: "Cleanliness", value: savedProfile.cleanliness },
-                  { label: "Noise", value: savedProfile.noise },
-                  { label: "Guests", value: savedProfile.guests },
-                  { label: "Social Battery", value: savedProfile.socialBattery },
-                  { label: "Pets", value: savedProfile.pets },
-                  { label: "Interests", value: savedProfile.interests },
-                  { label: "Budget", value: `$${savedProfile.budget}` },
-                ].map(({ label, value }) => (
-                  <div key={label} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                    <p className="text-xs font-semibold text-gray-800 uppercase tracking-wider mb-1">{label}</p>
-                    <p className="text-sm text-gray-700 capitalize">{value || "—"}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400 text-sm">No profile saved yet. Fill out the form and hit Save.</p>
-            )}
-          </div>
-        </div>
-
         {/* Match Score Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="bg-[#07294d] px-6 py-4">
@@ -251,7 +229,7 @@ function clearPreferences() {
                 </div>
               </div>
             ) : (
-              <p className="text-gray-400 text-sm">Load your saved preferences to see your match score.</p>
+              <p className="text-gray-400 text-sm">Save your preferences to view your profile and match score.</p>
             )}
           </div>
         </div>
@@ -259,7 +237,7 @@ function clearPreferences() {
         {/* Button Container */}
         <div className="flex gap-3 justify-center">
           <button onClick={savePreferences} className="px-6 py-2 bg-[#ffc600] text-[#07294d] font-semibold rounded-lg hover:bg-yellow-500 transition">Save</button>
-          <button onClick={loadPreferences} className="px-6 py-2 bg-[#07294d] text-white font-semibold rounded-lg hover:bg-blue-900 transition">Load</button>
+          <Link href="/my-profile" className="px-6 py-2 bg-[#07294d] text-white font-semibold rounded-lg hover:bg-blue-900 transition inline-block text-center">Preview</Link>
           <button onClick={clearPreferences} className="px-6 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition">Clear</button>
         </div>
         {saveMsg && <p className="text-center text-sm text-gray-600">{saveMsg}</p>}
