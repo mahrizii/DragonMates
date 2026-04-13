@@ -29,6 +29,7 @@ function savePreferences() {
   localStorage.setItem("roommatePrefsTime", time);
   setLastSaved(time);
   setSaveMsg("Preferences saved!");
+  setTimeout(() => setSaveMsg(""), 3000);
 }
 
 function loadPreferences() {
@@ -40,6 +41,7 @@ function loadPreferences() {
     setSavedProfile(parsed);
     setSaveMsg("Preferences loaded!");
     setLastSaved(savedTime || null);
+    setTimeout(() => setSaveMsg(""), 3000);
 
     // Stub: set a fake match score for demonstration
     setMatchScore(87);
@@ -52,6 +54,7 @@ function loadPreferences() {
 }
 
 function clearPreferences() {
+    if (!confirm("Clear all saved preferences?")) return;
   localStorage.removeItem("roommatePrefs");
   localStorage.removeItem("roommatePrefsTime");
   setPrefs({ ...defaultPrefs });
@@ -59,6 +62,7 @@ function clearPreferences() {
   setMatchScore(null);
   setLastSaved(null);
   setSaveMsg("Preferences cleared!");
+  setTimeout(() => setSaveMsg(""), 3000);
 }
 
   const fields = [
