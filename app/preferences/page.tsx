@@ -14,55 +14,6 @@ const defaultPrefs = {
   budget: "1500",
 };
 
-export default function PreferencesPage() {
- const [prefs, setPrefs] = useState({ ...defaultPrefs });
-const [savedProfile, setSavedProfile] = useState<null | typeof defaultPrefs>(null);
-const [matchScore, setMatchScore] = useState<number | null>(null);
-const [saveMsg, setSaveMsg] = useState("");
-const [lastSaved, setLastSaved] = useState<string | null>(null);
-
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
-    setPrefs({ ...prefs, [e.target.name]: e.target.value });
-  }
-
-function savePreferences() {
-  localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
-  const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
-  localStorage.setItem("roommatePrefsTime", time);
-  setLastSaved(time);
-  setSaveMsg("Preferences saved!");
-}
-
-function loadPreferences() {
-  const saved = localStorage.getItem("roommatePrefs");
-  const savedTime = localStorage.getItem("roommatePrefsTime");
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    setPrefs(parsed);
-    setSavedProfile(parsed);
-    setSaveMsg("Preferences loaded!");
-    setLastSaved(savedTime || null);
-
-    // Stub: set a fake match score for demonstration
-    setMatchScore(87);
-  } else {
-    setSaveMsg("No saved preferences found.");
-    setSavedProfile(null);
-    setMatchScore(null);
-    setLastSaved(null);
-  }
-}
-
-function clearPreferences() {
-  localStorage.removeItem("roommatePrefs");
-  localStorage.removeItem("roommatePrefsTime");
-  setPrefs({ ...defaultPrefs });
-  setSavedProfile(null);
-  setMatchScore(null);
-  setLastSaved(null);
-  setSaveMsg("Preferences cleared!");
-}
-
   const fields = [
     {
       label: "Sleep Schedule",
