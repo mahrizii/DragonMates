@@ -11,6 +11,7 @@ const defaultPrefs = {
   socialBattery: "",
   pets: "",
   interests: "",
+  budget: "1500",
 };
 
 export default function PreferencesPage() {
@@ -306,4 +307,4 @@ export default function PreferencesPage() {
       </div>
     </div>
   );
-}
+}}
