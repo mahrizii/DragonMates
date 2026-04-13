@@ -1,5 +1,7 @@
 "use client";
 
+import Link from 'next/link';
+
 interface Profile {
   id: string;
   email: string;
@@ -176,6 +178,14 @@ export default function ExplorePage() {
           <p className="mt-4 max-w-2xl text-lg text-slate-300">
             Compare student profiles, shared routines, and lifestyle preferences to find the best match for your next housing term.
           </p>
+          <div className="mt-6">
+            <Link
+              href="/preferences"
+              className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-4 py-2 text-sm font-semibold text-blue-200 hover:bg-blue-400/20 transition-colors"
+            >
+              ⚙️ Edit Preferences
+            </Link>
+          </div>
         </div>
 
         {MOCK_PROFILES.length === 0 ? (
