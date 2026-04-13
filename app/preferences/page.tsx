@@ -10,6 +10,7 @@ const defaultPrefs = {
   socialBattery: "",
   pets: "",
   interests: "",
+  budget: 1000,
 };
 
 export default function PreferencesPage() {
@@ -177,6 +178,29 @@ function clearPreferences() {
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600] focus:border-transparent transition"
               />
             </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-gray-800 uppercase tracking-wider mb-1.5">
+                Monthly Budget ($)
+              </label>
+              <div className="space-y-2">
+                <input
+                  type="range"
+                  name="budget"
+                  min="500"
+                  max="3000"
+                  step="50"
+                  value={prefs.budget}
+                  onChange={handleChange}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>$500</span>
+                  <span className="font-semibold text-gray-700">${prefs.budget}</span>
+                  <span>$3000</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -196,6 +220,7 @@ function clearPreferences() {
                   { label: "Social Battery", value: savedProfile.socialBattery },
                   { label: "Pets", value: savedProfile.pets },
                   { label: "Interests", value: savedProfile.interests },
+                  { label: "Budget", value: `$${savedProfile.budget}` },
                 ].map(({ label, value }) => (
                   <div key={label} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
                     <p className="text-xs font-semibold text-gray-800 uppercase tracking-wider mb-1">{label}</p>
