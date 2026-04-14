@@ -1,5 +1,5 @@
 // Author: Patrick Melan, April 12 2026
-// Mod by Patrick Melan, April 12 2026
+// Mod by Patrick Melan, April 14 2026
 
 "use client";
 
@@ -16,7 +16,12 @@ type ProfileData = {
     home_state: string;
     social_links: string;
   } | null;
-  academics: { academic_year: string; major: string; minor: string; gpa: string } | null;
+  academics: {
+    academic_year: string;
+    major: string;
+    minor: string;
+    gpa: string;
+  } | null;
   living: {
     time_sleep: string;
     time_wake: string;
@@ -96,10 +101,22 @@ export default function DashboardPage({
             <div className="p-5 grid grid-cols-3 gap-4 text-sm text-gray-700">
               <Field label="Bedtime" value={profile?.living?.time_sleep} />
               <Field label="Wake Time" value={profile?.living?.time_wake} />
-              <Field label="Temp" value={profile?.living?.comfortable_temp?.toString()} />
-              <Field label="Noise Level" value={profile?.living?.noise_level?.toString()} />
-              <Field label="Cleanliness" value={profile?.living?.cleanliness?.toString()} />
-              <Field label="Music" value={profile?.living?.music_genre?.join(", ")} />
+              <Field
+                label="Temp"
+                value={profile?.living?.comfortable_temp?.toString()}
+              />
+              <Field
+                label="Noise Level"
+                value={profile?.living?.noise_level?.toString()}
+              />
+              <Field
+                label="Cleanliness"
+                value={profile?.living?.cleanliness?.toString()}
+              />
+              <Field
+                label="Music"
+                value={profile?.living?.music_genre?.join(", ")}
+              />
             </div>
           </div>
 
@@ -109,7 +126,9 @@ export default function DashboardPage({
               <h2 className="text-white font-semibold">Interests</h2>
             </div>
             <div className="p-5 text-sm text-gray-400">
-              {profile?.interests?.map((i) => `${i.emoji} ${i.name}`).join(", ") || "—"}
+              {profile?.interests
+                ?.map((i) => `${i.emoji} ${i.name}`)
+                .join(", ") || "—"}
             </div>
           </div>
         </div>
