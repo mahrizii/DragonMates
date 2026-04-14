@@ -1,7 +1,9 @@
+// Mod by Patrick Melan, April 12 2026
+
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const ACADEMIC_YEARS = [
   "Freshman",
@@ -66,6 +68,9 @@ const INTEREST_OPTIONS = [
 
 export default function ProfileCreatePage() {
   const router = useRouter();
+  // get user_id passed as query param from register page
+  const searchParams = useSearchParams();
+  const user_id = searchParams.get("user_id");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -107,29 +112,33 @@ export default function ProfileCreatePage() {
     setLoading(true);
     setError("");
     try {
-      await Promise.all([
-        fetch("/api/users/academics", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...academics,
-            gpa: parseFloat(academics.gpa) || null,
-          }),
+      // post all profile data in one request to /api/profiles
+      const res = await fetch("/api/profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id,
+          academics: { ...academics, gpa: parseFloat(academics.gpa) || null },
+          living,
+          interests: INTEREST_OPTIONS
+            .filter((o) => selectedInterests.includes(o.name))
+            .map(({ name, emoji }) => ({ name, emoji, description: null })),
         }),
-        fetch("/api/users/living-style", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(living),
-        }),
-        fetch("/api/users/interests", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ interests: selectedInterests }),
-        }),
-      ]);
-      router.push("/dashboard/{user_id-to-be-added-here}");
-    } catch {
-      setError("Something went wrong saving your profile. Please try again.");
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to save profile.");
+      }
+
+      // redirect to dashboard with the user's id
+      router.push(`/dashboard/${user_id}`);
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong saving your profile. Please try again.",
+      );
     } finally {
       setLoading(false);
     }

@@ -12,20 +12,20 @@ type ProfileData = {
     email: string;
     first_name: string;
     last_name: string;
-    hometown: string;
+    home_town: string;
     home_state: string;
     social_links: string;
   } | null;
-  academics: { year: string; major: string; minor: string; gpa: string } | null;
+  academics: { academic_year: string; major: string; minor: string; gpa: string } | null;
   living: {
-    bedtime: string;
-    wake_time: string;
-    temp: string;
+    time_sleep: string;
+    time_wake: string;
+    comfortable_temp: string;
     noise_level: string;
     cleanliness: string;
-    music: string;
+    music_genre: string[];
   } | null;
-  interests: { interests: string[] } | null;
+  interests: { name: string; emoji: string; description: string }[] | null;
 };
 
 export default function DashboardPage({
@@ -68,7 +68,7 @@ export default function DashboardPage({
             <Field label="First Name" value={profile?.user?.first_name} />
             <Field label="Last Name" value={profile?.user?.last_name} />
             <Field label="Email" value={profile?.user?.email} />
-            <Field label="Hometown" value={profile?.user?.hometown} />
+            <Field label="Hometown" value={profile?.user?.home_town} />
             <Field label="Home State" value={profile?.user?.home_state} />
             <Field label="Social Links" value={profile?.user?.social_links} />
           </div>
@@ -81,7 +81,7 @@ export default function DashboardPage({
               <h2 className="text-white font-semibold">Academics</h2>
             </div>
             <div className="p-5 grid grid-cols-4 gap-4 text-sm text-gray-700">
-              <Field label="Year" value={profile?.academics?.year} />
+              <Field label="Year" value={profile?.academics?.academic_year} />
               <Field label="Major" value={profile?.academics?.major} />
               <Field label="Minor" value={profile?.academics?.minor} />
               <Field label="GPA" value={profile?.academics?.gpa} />
@@ -94,12 +94,12 @@ export default function DashboardPage({
               <h2 className="text-white font-semibold">Living Style</h2>
             </div>
             <div className="p-5 grid grid-cols-3 gap-4 text-sm text-gray-700">
-              <Field label="Bedtime" value={profile?.living?.bedtime} />
-              <Field label="Wake Time" value={profile?.living?.wake_time} />
-              <Field label="Temp" value={profile?.living?.temp} />
-              <Field label="Noise Level" value={profile?.living?.noise_level} />
-              <Field label="Cleanliness" value={profile?.living?.cleanliness} />
-              <Field label="Music" value={profile?.living?.music} />
+              <Field label="Bedtime" value={profile?.living?.time_sleep} />
+              <Field label="Wake Time" value={profile?.living?.time_wake} />
+              <Field label="Temp" value={profile?.living?.comfortable_temp?.toString()} />
+              <Field label="Noise Level" value={profile?.living?.noise_level?.toString()} />
+              <Field label="Cleanliness" value={profile?.living?.cleanliness?.toString()} />
+              <Field label="Music" value={profile?.living?.music_genre?.join(", ")} />
             </div>
           </div>
 
@@ -109,7 +109,7 @@ export default function DashboardPage({
               <h2 className="text-white font-semibold">Interests</h2>
             </div>
             <div className="p-5 text-sm text-gray-400">
-              {profile?.interests?.interests?.join(", ") || "—"}
+              {profile?.interests?.map((i) => `${i.emoji} ${i.name}`).join(", ") || "—"}
             </div>
           </div>
         </div>
