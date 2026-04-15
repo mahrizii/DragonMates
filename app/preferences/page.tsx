@@ -83,6 +83,23 @@ export default function PreferencesPage() {
   const [matchScore, setMatchScore] = useState<number | null>(null);
   const [saveMsg, setSaveMsg] = useState("");
   const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Partial<Record<keyof typeof defaultPrefs, string>>>({});
+
+function validate() {
+  const newErrors: Partial<Record<keyof typeof defaultPrefs, string>> = {};
+
+  fields.forEach(({ name, label }) => {
+    if (!prefs[name as keyof typeof prefs]) {
+      newErrors[name as keyof typeof defaultPrefs] = `${label} is required.`;
+    }
+  });
+
+  if (!prefs.interests.trim()) {
+    newErrors.interests = "Interests are required.";
+  }
+
+  return newErrors;
+}
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
     setPrefs({ ...prefs, [e.target.name]: e.target.value });
