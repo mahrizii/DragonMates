@@ -181,12 +181,16 @@ function validate() {
   }, []);
 
   function savePreferences() {
-    localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
-    const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
-    localStorage.setItem("roommatePrefsTime", time);
-    setLastSaved(time);
-    setSaveMsg("Preferences saved!");
-  }
+  const newErrors = validate();
+  setErrors(newErrors);
+  if (Object.keys(newErrors).length > 0) return;
+
+  localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
+  const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
+  localStorage.setItem("roommatePrefsTime", time);
+  setLastSaved(time);
+  setSaveMsg("Preferences saved!");
+}
 
   function previewPreferences() {
     const saved = localStorage.getItem("roommatePrefs");
