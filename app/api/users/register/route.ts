@@ -1,6 +1,8 @@
-import { randomBytes, scryptSync } from "crypto";
-import { supabaseAdmin } from "@/lib/supabase";
+// Mod by Patrick Melan, April 12 2026
+
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { NextResponse } from "next/server";
+import { randomBytes, scryptSync } from "crypto";
 
 export async function POST(request: Request) {
   const body = await request.json();
