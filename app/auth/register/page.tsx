@@ -135,7 +135,7 @@ export default function SignUpPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed.");
-      router.push("/profile/create");
+      router.push(`/profile/create?user_id=${data.user.id}`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
