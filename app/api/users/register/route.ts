@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { NextResponse } from "next/server";
+import { randomBytes } from "crypto";
 
 export async function POST(request: Request) {
   const body = await request.json();
