@@ -193,22 +193,27 @@ function validate() {
 
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
             {fields.map(({ label, name, options }) => (
-              <div key={name}>
-                <label className="block text-xs font-semibold text-gray-800 uppercase tracking-wider mb-1.5">
-                  {label}
-                </label>
-                <select
-                  name={name}
-                  value={prefs[name as keyof typeof prefs]}
-                  onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600] focus:border-transparent transition"
-                >
-                  {options.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
-              </div>
-            ))}
+  <div key={name}>
+    <label className="block text-xs font-semibold text-gray-800 uppercase tracking-wider mb-1.5">
+      {label}
+    </label>
+    <select
+      name={name}
+      value={prefs[name as keyof typeof prefs]}
+      onChange={handleChange}
+      className={`w-full border rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600] focus:border-transparent transition ${
+        errors[name as keyof typeof defaultPrefs] ? "border-red-400" : "border-gray-200"
+      }`}
+    >
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>{o.label}</option>
+      ))}
+    </select>
+    {errors[name as keyof typeof defaultPrefs] && (
+      <p className="text-red-500 text-xs mt-1">{errors[name as keyof typeof defaultPrefs]}</p>
+    )}
+  </div>
+))}
 
             <div className="sm:col-span-2">
               <label className="block text-xs font-semibold text-gray-800 uppercase tracking-wider mb-1.5">
