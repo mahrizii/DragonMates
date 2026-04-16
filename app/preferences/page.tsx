@@ -154,14 +154,15 @@ function validate() {
   }
 
   function clearPreferences() {
-    localStorage.removeItem("roommatePrefs");
-    localStorage.removeItem("roommatePrefsTime");
-    setPrefs({ ...defaultPrefs });
-    setSavedProfile(null);
-    setMatchScore(null);
-    setLastSaved(null);
-    setSaveMsg("Preferences cleared!");
-  }
+  localStorage.removeItem("roommatePrefs");
+  localStorage.removeItem("roommatePrefsTime");
+  setPrefs({ ...defaultPrefs });
+  setSavedProfile(null);
+  setMatchScore(null);
+  setLastSaved(null);
+  setSaveMsg("Preferences cleared!");
+  setErrors({});
+}
 
   return (
     <div className="min-h-screen bg-[#f5f6fa] font-sans">
