@@ -9,7 +9,7 @@ const defaultPrefs = {
   noise: "",
   guests: "",
   socialBattery: "",
-  pets: "",
+  responsibilities: "",
   interests: "",
   budget: 1000,
 };
@@ -120,8 +120,7 @@ export default function SavedProfilePage() {
             { label: "Noise Level", value: savedProfile.noise, icon: "🔊", color: "from-purple-50 to-purple-100", iconColor: "text-purple-600" },
             { label: "Guests", value: savedProfile.guests, icon: "👥", color: "from-orange-50 to-orange-100", iconColor: "text-orange-600" },
             { label: "Social Battery", value: savedProfile.socialBattery, icon: "⚡", color: "from-yellow-50 to-yellow-100", iconColor: "text-yellow-600" },
-            { label: "Pets", value: savedProfile.pets, icon: "🐾", color: "from-pink-50 to-pink-100", iconColor: "text-pink-600" },
-            { label: "Monthly Budget", value: `$${savedProfile.budget}`, icon: "💰", color: "from-emerald-50 to-emerald-100", iconColor: "text-emerald-600" },
+            { label: "Responsibilities", value: savedProfile.responsibilities, icon: "🏠", color: "from-pink-50 to-pink-100", iconColor: "text-pink-600" },            { label: "Monthly Budget", value: `$${savedProfile.budget}`, icon: "💰", color: "from-emerald-50 to-emerald-100", iconColor: "text-emerald-600" },
             { label: "Interests", value: savedProfile.interests || "None specified", icon: "🎯", color: "from-indigo-50 to-indigo-100", iconColor: "text-indigo-600" },
           ].map(({ label, value, icon, color, iconColor }) => (
             <div key={label} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
