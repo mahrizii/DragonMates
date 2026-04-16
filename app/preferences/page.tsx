@@ -22,21 +22,7 @@ export default function PreferencesPage() {
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [errors, setErrors] = useState<Partial<Record<keyof typeof defaultPrefs, string>>>({});
 
-function validate() {
-  const newErrors: Partial<Record<keyof typeof defaultPrefs, string>> = {};
 
-  fields.forEach(({ name, label }) => {
-    if (!prefs[name as keyof typeof prefs]) {
-      newErrors[name as keyof typeof defaultPrefs] = `${label} is required.`;
-    }
-  });
-
-  if (!prefs.interests.trim()) {
-    newErrors.interests = "Interests are required.";
-  }
-
-  return newErrors;
-}
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
   const { name, value } = e.target;
@@ -98,8 +84,8 @@ function validate() {
       ],
     },
     {
-      label: "responsibilities",
-      name: "Responsibilities",
+      label: "Responsibilities",
+      name: "responsibilities",
       options: [
         { value: "", label: "Select..." },
         { value: "low", label: "Minimal — I do my part" },
@@ -109,19 +95,35 @@ function validate() {
     },
   ];
 
-  useEffect(() => {
-    const saved = localStorage.getItem("roommatePrefs");
-    const savedTime = localStorage.getItem("roommatePrefsTime");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setPrefs(parsed);
-      setSavedProfile(parsed);
-      setLastSaved(savedTime || null);
-      setMatchScore(87);
-    }
-  }, []);
+useEffect(() => {
+  const saved = localStorage.getItem("roommatePrefs");
+  const savedTime = localStorage.getItem("roommatePrefsTime");
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    setPrefs(parsed);
+    setSavedProfile(parsed);
+    setLastSaved(savedTime || null);
+    setMatchScore(87);
+  }
+}, []);
 
-  function savePreferences() {
+function validate() {
+  const newErrors: Partial<Record<keyof typeof defaultPrefs, string>> = {};
+
+  fields.forEach(({ name, label }) => {
+    if (!prefs[name as keyof typeof prefs]) {
+      newErrors[name as keyof typeof defaultPrefs] = `${label} is required.`;
+    }
+  });
+
+  if (!prefs.interests.trim()) {
+    newErrors.interests = "Interests are required.";
+  }
+
+  return newErrors;
+}
+
+function savePreferences() {
   const newErrors = validate();
   setErrors(newErrors);
   if (Object.keys(newErrors).length > 0) return;
@@ -132,6 +134,8 @@ function validate() {
   setLastSaved(time);
   setSaveMsg("Preferences saved!");
 }
+
+
 
   function previewPreferences() {
     const saved = localStorage.getItem("roommatePrefs");
