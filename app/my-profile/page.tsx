@@ -128,6 +128,7 @@ export default function SavedProfilePage() {
             { label: "Social Battery", value: savedProfile.socialBattery, icon: "⚡", color: "from-yellow-50 to-yellow-100", iconColor: "text-yellow-600" },
             { label: "Responsibilities", value: responsibilitiesMap[savedProfile.responsibilities] || savedProfile.responsibilities, icon: "🏠", color: "from-pink-50 to-pink-100", iconColor: "text-pink-600" },            
             { label: "Interests", value: savedProfile.interests || "None specified", icon: "🎯", color: "from-indigo-50 to-indigo-100", iconColor: "text-indigo-600" },
+            { label: "Budget", value: savedProfile.budget ? `$${savedProfile.budget}/mo` : "Not set", icon: "💰", color: "from-teal-50 to-teal-100", iconColor: "text-teal-600" },
           ].map(({ label, value, icon, color, iconColor }) => (
             <div key={label} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
               <div className={`bg-gradient-to-r ${color} px-4 py-3 border-b border-gray-200`}>
