@@ -11,7 +11,7 @@ const defaultPrefs = {
   socialBattery: "",
   responsibilities: "",
   interests: "",
-  budget: "1750",
+  budget: "1500",
 };
 
 export default function PreferencesPage() {
