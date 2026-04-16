@@ -39,8 +39,12 @@ function validate() {
 }
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
-    setPrefs({ ...prefs, [e.target.name]: e.target.value });
+  const { name, value } = e.target;
+  setPrefs({ ...prefs, [name]: value });
+  if (errors[name as keyof typeof defaultPrefs]) {
+    setErrors({ ...errors, [name]: undefined });
   }
+}
 
   const fields = [
     {
