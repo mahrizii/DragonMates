@@ -228,9 +228,9 @@ function validate() {
                 <input
                   type="range"
                   name="budget"
-                  min="500"
+                  min="0"
                   max="3000"
-                  step="50"
+                  step="100"
                   value={prefs.budget}
                   onChange={handleChange}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
