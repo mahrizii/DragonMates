@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 
 const defaultPrefs = {
@@ -21,6 +21,8 @@ export default function PreferencesPage() {
   const [saveMsg, setSaveMsg] = useState("");
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [errors, setErrors] = useState<Partial<Record<keyof typeof defaultPrefs, string>>>({});
+
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 
 
@@ -123,15 +125,30 @@ function validate() {
   return newErrors;
 }
 
+const savePreferencesToStorage = useCallback(() => {
+  localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
+  const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
+  localStorage.setItem("roommatePrefsTime", time);
+  setLastSaved(time);
+}, [prefs]);
+
+const debouncedSave = useCallback(() => {
+  if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+  saveTimeoutRef.current = setTimeout(() => {
+    savePreferencesToStorage();
+  }, 2000);
+}, [savePreferencesToStorage]);
+
+useEffect(() => {
+  debouncedSave();
+}, [debouncedSave]);
+
 function savePreferences() {
   const newErrors = validate();
   setErrors(newErrors);
   if (Object.keys(newErrors).length > 0) return;
 
-  localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
-  const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
-  localStorage.setItem("roommatePrefsTime", time);
-  setLastSaved(time);
+  savePreferencesToStorage();
   setSaveMsg("Preferences saved!");
 }
 
