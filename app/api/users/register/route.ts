@@ -1,8 +1,8 @@
 // Mod by Patrick Melan, April 12 2026
 
+import { hashPassword } from "@/lib/password";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { NextResponse } from "next/server";
-import { randomBytes, scryptSync } from "crypto";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -41,10 +41,4 @@ export async function POST(request: Request) {
   if (profileError) return NextResponse.json({ error: profileError.message }, { status: 400 });
 
   return NextResponse.json({ user: authData.user, profile: profileData });
-}
-
-function hashPassword(plain: string) {
-  const salt = randomBytes(16).toString("hex");
-  const derived = scryptSync(plain, salt, 64).toString("hex");
-  return `${salt}:${derived}`;
 }
