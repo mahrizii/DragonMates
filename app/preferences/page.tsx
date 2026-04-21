@@ -135,8 +135,6 @@ function savePreferences() {
   setSaveMsg("Preferences saved!");
 }
 
-
-
   function previewPreferences() {
     const saved = localStorage.getItem("roommatePrefs");
     const savedTime = localStorage.getItem("roommatePrefsTime");
