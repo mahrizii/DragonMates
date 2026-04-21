@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, startTransition } from "react";
 import Link from "next/link";
 
 const defaultPrefs = {
@@ -16,7 +16,6 @@ const defaultPrefs = {
 
 export default function PreferencesPage() {
   const [prefs, setPrefs] = useState({ ...defaultPrefs });
-  const [savedProfile, setSavedProfile] = useState<null | typeof defaultPrefs>(null);
   const [matchScore, setMatchScore] = useState<number | null>(null);
   const [saveMsg, setSaveMsg] = useState("");
   const [lastSaved, setLastSaved] = useState<string | null>(null);
@@ -27,12 +26,12 @@ export default function PreferencesPage() {
 
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
-  const { name, value } = e.target;
-  setPrefs({ ...prefs, [name]: value });
-  if (errors[name as keyof typeof defaultPrefs]) {
-    setErrors({ ...errors, [name]: undefined });
+    const { name, value } = e.target;
+    setPrefs({ ...prefs, [name]: value });
+    if (errors[name as keyof typeof defaultPrefs]) {
+      setErrors({ ...errors, [name]: undefined });
+    }
   }
-}
 
   const fields = [
     {
@@ -97,93 +96,70 @@ export default function PreferencesPage() {
     },
   ];
 
-useEffect(() => {
-  const saved = localStorage.getItem("roommatePrefs");
-  const savedTime = localStorage.getItem("roommatePrefsTime");
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    setPrefs(parsed);
-    setSavedProfile(parsed);
-    setLastSaved(savedTime || null);
-    setMatchScore(87);
-  }
-}, []);
-
-function validate() {
-  const newErrors: Partial<Record<keyof typeof defaultPrefs, string>> = {};
-
-  fields.forEach(({ name, label }) => {
-    if (!prefs[name as keyof typeof prefs]) {
-      newErrors[name as keyof typeof defaultPrefs] = `${label} is required.`;
-    }
-  });
-
-  if (!prefs.interests.trim()) {
-    newErrors.interests = "Interests are required.";
-  }
-
-  return newErrors;
-}
-
-const savePreferencesToStorage = useCallback(() => {
-  localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
-  const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
-  localStorage.setItem("roommatePrefsTime", time);
-  setLastSaved(time);
-}, [prefs]);
-
-const debouncedSave = useCallback(() => {
-  if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-  saveTimeoutRef.current = setTimeout(() => {
-    savePreferencesToStorage();
-  }, 2000);
-}, [savePreferencesToStorage]);
-
-useEffect(() => {
-  debouncedSave();
-}, [debouncedSave]);
-
-function savePreferences() {
-  const newErrors = validate();
-  setErrors(newErrors);
-  if (Object.keys(newErrors).length > 0) return;
-
-  savePreferencesToStorage();
-  setSaveMsg("Preferences saved!");
-}
-
-
-
-  function previewPreferences() {
+  useEffect(() => {
     const saved = localStorage.getItem("roommatePrefs");
     const savedTime = localStorage.getItem("roommatePrefsTime");
-    if (saved) {
-      const parsed = JSON.parse(saved);
+    if (!saved) return;
+    const parsed = JSON.parse(saved);
+    startTransition(() => {
       setPrefs(parsed);
-      setSavedProfile(parsed);
-      setSaveMsg("Preferences preview loaded!");
       setLastSaved(savedTime || null);
-
-      // Stub: set a fake match score for demonstration
       setMatchScore(87);
-    } else {
-      setSaveMsg("No saved preferences found to preview.");
-      setSavedProfile(null);
-      setMatchScore(null);
-      setLastSaved(null);
+    });
+  }, []);
+
+  function validate() {
+    const newErrors: Partial<Record<keyof typeof defaultPrefs, string>> = {};
+
+    fields.forEach(({ name, label }) => {
+      if (!prefs[name as keyof typeof prefs]) {
+        newErrors[name as keyof typeof defaultPrefs] = `${label} is required.`;
+      }
+    });
+
+    if (!prefs.interests.trim()) {
+      newErrors.interests = "Interests are required.";
     }
+
+    return newErrors;
+  }
+
+  const savePreferencesToStorage = useCallback(() => {
+    localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
+    const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
+    localStorage.setItem("roommatePrefsTime", time);
+    setLastSaved(time);
+  }, [prefs]);
+
+  const debouncedSave = useCallback(() => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      savePreferencesToStorage();
+    }, 2000);
+  }, [savePreferencesToStorage]);
+
+  useEffect(() => {
+    debouncedSave();
+  }, [debouncedSave]);
+
+  function savePreferences() {
+    const newErrors = validate();
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
+    savePreferencesToStorage();
+    setSaveMsg("Preferences saved!");
   }
 
   function clearPreferences() {
-  localStorage.removeItem("roommatePrefs");
-  localStorage.removeItem("roommatePrefsTime");
-  setPrefs({ ...defaultPrefs });
-  setSavedProfile(null);
-  setMatchScore(null);
-  setLastSaved(null);
-  setSaveMsg("Preferences cleared!");
-  setErrors({});
-}
+    localStorage.removeItem("roommatePrefs");
+    localStorage.removeItem("roommatePrefsTime");
+    setPrefs({ ...defaultPrefs });
+    setMatchScore(null);
+    setLastSaved(null);
+    setSaveMsg("Preferences cleared!");
+    setErrors({});
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f6fa] font-sans">

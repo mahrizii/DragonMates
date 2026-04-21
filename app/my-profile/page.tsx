@@ -1,39 +1,36 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, startTransition } from "react";
 import Link from "next/link";
 
-const defaultPrefs = {
-  sleepSchedule: "",
-  cleanliness: "",
-  noise: "",
-  guests: "",
-  socialBattery: "",
-  responsibilities: "",
-  interests: "",
-  budget: 1000,
+type RoommatePrefs = {
+  sleepSchedule: string;
+  cleanliness: string;
+  noise: string;
+  guests: string;
+  socialBattery: string;
+  responsibilities: string;
+  interests: string;
+  budget: number | string;
 };
 
 export default function SavedProfilePage() {
-  const [savedProfile, setSavedProfile] = useState<typeof defaultPrefs | null>(null);
+  const [savedProfile, setSavedProfile] = useState<RoommatePrefs | null>(null);
   const [matchScore, setMatchScore] = useState<number | null>(null);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
 
   useEffect(() => {
-    loadSavedProfile();
-  }, []);
-
-  function loadSavedProfile() {
     const saved = localStorage.getItem("roommatePrefs");
     const savedTime = localStorage.getItem("roommatePrefsTime");
-    if (saved) {
-      const parsed = JSON.parse(saved);
+    if (!saved) return;
+    const parsed = JSON.parse(saved) as RoommatePrefs;
+    startTransition(() => {
       setSavedProfile(parsed);
       setLastSaved(savedTime);
       // Stub: set a fake match score for demonstration
       setMatchScore(87);
-    }
-  }
+    });
+  }, []);
 
   const responsibilitiesMap: Record<string, string> = {
     low: "Minimal — I do my part",
@@ -68,7 +65,7 @@ export default function SavedProfilePage() {
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-4">No Saved Profile Found</h2>
               <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                You haven't saved any preferences yet. Set up your roommate preferences to see your profile here.
+                You haven&apos;t saved any preferences yet. Set up your roommate preferences to see your profile here.
               </p>
               <Link
                 href="/preferences"
@@ -166,7 +163,7 @@ export default function SavedProfilePage() {
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Great Match Potential!</h3>
                   <p className="text-gray-600 mb-4">
-                    Based on your preferences, you're {matchScore}% compatible with profiles in our database.
+                    Based on your preferences, you&apos;re {matchScore}% compatible with profiles in our database.
                     Start exploring to find your ideal roommate!
                   </p>
                   <Link
