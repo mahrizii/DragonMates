@@ -1,9 +1,26 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, startTransition } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  startTransition,
+} from "react";
 import Link from "next/link";
 
-const defaultPrefs = {
+type RoommatePrefs = {
+  sleepSchedule: string;
+  cleanliness: string;
+  noise: string;
+  guests: string;
+  socialBattery: string;
+  responsibilities: string;
+  interests: string;
+  budget: number;
+};
+
+const defaultPrefs: RoommatePrefs = {
   sleepSchedule: "",
   cleanliness: "",
   noise: "",
@@ -11,27 +28,20 @@ const defaultPrefs = {
   socialBattery: "",
   responsibilities: "",
   interests: "",
-  budget: "1500",
+  budget: 1500,
 };
 
 export default function PreferencesPage() {
-  const [prefs, setPrefs] = useState({ ...defaultPrefs });
+  const [prefs, setPrefs] = useState<RoommatePrefs>({ ...defaultPrefs });
   const [matchScore, setMatchScore] = useState<number | null>(null);
   const [saveMsg, setSaveMsg] = useState("");
   const [lastSaved, setLastSaved] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Partial<Record<keyof typeof defaultPrefs, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof RoommatePrefs, string>>
+  >({});
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-
-
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
-    const { name, value } = e.target;
-    setPrefs({ ...prefs, [name]: value });
-    if (errors[name as keyof typeof defaultPrefs]) {
-      setErrors({ ...errors, [name]: undefined });
-    }
-  }
+  const isFirstLoad = useRef(true);
 
   const fields = [
     {
@@ -96,55 +106,31 @@ export default function PreferencesPage() {
     },
   ];
 
-<<<<<<< HEAD
-useEffect(() => {
-  const saved = localStorage.getItem("roommatePrefs");
-  const savedTime = localStorage.getItem("roommatePrefsTime");
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    setPrefs(parsed);
-    setSavedProfile(parsed);
-    setLastSaved(savedTime || null);
-    setMatchScore(87);
-  }
-}, []);
+  function handleChange(
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
+  ) {
+    const { name, value } = e.target;
 
-function validate() {
-  const newErrors: Partial<Record<keyof typeof defaultPrefs, string>> = {};
-
-  fields.forEach(({ name, label }) => {
-    if (!prefs[name as keyof typeof prefs]) {
-      newErrors[name as keyof typeof defaultPrefs] = `${label} is required.`;
+    if (name === "budget") {
+      setPrefs({ ...prefs, budget: Number(value) });
+    } else {
+      setPrefs({ ...prefs, [name]: value });
     }
-  });
 
-  if (!prefs.interests.trim()) {
-    newErrors.interests = "Interests are required.";
+    if (errors[name as keyof RoommatePrefs]) {
+      setErrors({ ...errors, [name]: undefined });
+    }
   }
 
-  return newErrors;
-}
-
-function savePreferences() {
-  const newErrors = validate();
-  setErrors(newErrors);
-  if (Object.keys(newErrors).length > 0) return;
-
-  localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
-  const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
-  localStorage.setItem("roommatePrefsTime", time);
-  setLastSaved(time);
-  setSaveMsg("Preferences saved!");
-}
-
-  function previewPreferences() {
-=======
+  // ✅ Load saved data (optimized)
   useEffect(() => {
->>>>>>> 8c6e91cc9f50351c28330e3ec9cb71abe68d2872
     const saved = localStorage.getItem("roommatePrefs");
     const savedTime = localStorage.getItem("roommatePrefsTime");
+
     if (!saved) return;
-    const parsed = JSON.parse(saved);
+
+    const parsed = JSON.parse(saved) as RoommatePrefs;
+
     startTransition(() => {
       setPrefs(parsed);
       setLastSaved(savedTime || null);
@@ -153,11 +139,11 @@ function savePreferences() {
   }, []);
 
   function validate() {
-    const newErrors: Partial<Record<keyof typeof defaultPrefs, string>> = {};
+    const newErrors: Partial<Record<keyof RoommatePrefs, string>> = {};
 
     fields.forEach(({ name, label }) => {
-      if (!prefs[name as keyof typeof prefs]) {
-        newErrors[name as keyof typeof defaultPrefs] = `${label} is required.`;
+      if (!prefs[name as keyof RoommatePrefs]) {
+        newErrors[name as keyof RoommatePrefs] = `${label} is required.`;
       }
     });
 
@@ -170,25 +156,39 @@ function savePreferences() {
 
   const savePreferencesToStorage = useCallback(() => {
     localStorage.setItem("roommatePrefs", JSON.stringify(prefs));
-    const time = new Date().toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
+
+    const time = new Date().toLocaleString("en-US", {
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
     localStorage.setItem("roommatePrefsTime", time);
     setLastSaved(time);
   }, [prefs]);
 
+  // ✅ Safe debounced autosave
   const debouncedSave = useCallback(() => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+
     saveTimeoutRef.current = setTimeout(() => {
       savePreferencesToStorage();
     }, 2000);
   }, [savePreferencesToStorage]);
 
   useEffect(() => {
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      return;
+    }
     debouncedSave();
-  }, [debouncedSave]);
+  }, [prefs, debouncedSave]);
 
   function savePreferences() {
     const newErrors = validate();
     setErrors(newErrors);
+
     if (Object.keys(newErrors).length > 0) return;
 
     savePreferencesToStorage();
@@ -198,6 +198,7 @@ function savePreferences() {
   function clearPreferences() {
     localStorage.removeItem("roommatePrefs");
     localStorage.removeItem("roommatePrefsTime");
+
     setPrefs({ ...defaultPrefs });
     setMatchScore(null);
     setLastSaved(null);
@@ -207,129 +208,89 @@ function savePreferences() {
 
   return (
     <div className="min-h-screen bg-[#f5f6fa] font-sans">
-
       {/* Header */}
       <div className="bg-[#07294d] px-8 py-5 flex items-center justify-between shadow-md">
         <div>
-          <h1 className="text-2xl font-bold text-[#ffc600] tracking-wide">Dragonmates</h1>
-          <p className="text-blue-200 text-sm mt-0.5">Find your perfect roommate match</p>
+          <h1 className="text-2xl font-bold text-[#ffc600] tracking-wide">
+            Dragonmates
+          </h1>
+          <p className="text-blue-200 text-sm mt-0.5">
+            Find your perfect roommate match
+          </p>
         </div>
+
         <div className="flex gap-3">
-          <Link href="/my-profile" className="px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition">
+          <Link
+            href="/my-profile"
+            className="px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition"
+          >
             My Profile
           </Link>
-          <Link href="/explore" className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+
+          <Link
+            href="/explore"
+            className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition"
+          >
             Explore
           </Link>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-6 py-10 space-y-8">
-
-        {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-[#07294d] px-6 py-4">
-            <h2 className="text-white font-semibold text-lg">Your Living Preferences</h2>
-            <p className="text-blue-300 text-sm">Tell us how you like to live</p>
-          </div>
-
-          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {fields.map(({ label, name, options }) => (
-  <div key={name}>
-    <label className="block text-xs font-semibold text-gray-800 uppercase tracking-wider mb-1.5">
-      {label}
-    </label>
-    <select
-      name={name}
-      value={prefs[name as keyof typeof prefs]}
-      onChange={handleChange}
-      className={`w-full border rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600] focus:border-transparent transition ${
-        errors[name as keyof typeof defaultPrefs] ? "border-red-400" : "border-gray-200"
-      }`}
-    >
-      {options.map((o) => (
-        <option key={o.value} value={o.value}>{o.label}</option>
-      ))}
-    </select>
-    {errors[name as keyof typeof defaultPrefs] && (
-      <p className="text-red-500 text-xs mt-1">{errors[name as keyof typeof defaultPrefs]}</p>
-    )}
-  </div>
-))}
-
-            <div className="sm:col-span-2">
-  <label className="block text-xs font-semibold text-gray-800 uppercase tracking-wider mb-1.5">
-    Interests
-  </label>
-  <input
-    type="text"
-    name="interests"
-    value={prefs.interests}
-    onChange={handleChange}
-    placeholder="e.g. gaming, gym, cooking, hiking, reading..."
-    className={`w-full border rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600] focus:border-transparent transition ${
-      errors.interests ? "border-red-400" : "border-gray-200"
-    }`}
-  />
-  {errors.interests && <p className="text-red-500 text-xs mt-1">{errors.interests}</p>}
-</div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-gray-800 uppercase tracking-wider mb-1.5">
-                Monthly Budget ($)
-              </label>
-              <div className="space-y-2">
-                <input
-                  type="range"
-                  name="budget"
-                  min="0"
-                  max="3000"
-                  step="100"
-                  value={prefs.budget}
-                  onChange={handleChange}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                />
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>$500</span>
-                  <span className="font-semibold text-gray-700">${prefs.budget}</span>
-                  <span>$3000</span>
-                </div>
-              </div>
+        {/* Form */}
+        <div className="bg-white rounded-2xl shadow-sm border p-6 grid gap-5">
+          {fields.map(({ label, name, options }) => (
+            <div key={name}>
+              <label className="text-xs font-semibold">{label}</label>
+              <select
+                name={name}
+                value={prefs[name as keyof RoommatePrefs]}
+                onChange={handleChange}
+                className="w-full border rounded-lg px-3 py-2"
+              >
+                {options.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              {errors[name as keyof RoommatePrefs] && (
+                <p className="text-red-500 text-xs">
+                  {errors[name as keyof RoommatePrefs]}
+                </p>
+              )}
             </div>
-          </div>
+          ))}
+
+          <input
+            type="text"
+            name="interests"
+            value={prefs.interests}
+            onChange={handleChange}
+            placeholder="Interests..."
+            className="border rounded-lg px-3 py-2"
+          />
+
+          <input
+            type="range"
+            name="budget"
+            min="0"
+            max="3000"
+            step="100"
+            value={prefs.budget}
+            onChange={handleChange}
+          />
+          <p>${prefs.budget}</p>
         </div>
 
-        {/* Match Score Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-[#07294d] px-6 py-4">
-            <h2 className="text-white font-semibold text-lg">Matching Result</h2>
-          </div>
-          <div className="p-6">
-            {matchScore !== null ? (
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-[#ffc600] flex items-center justify-center shadow">
-                  <span className="text-[#07294d] font-bold text-lg">{matchScore}%</span>
-                </div>
-                <div>
-                  <p className="text-gray-700 font-semibold">Compatibility Score</p>
-                  <p className="text-gray-400 text-sm">Stub example — real matching coming soon</p>
-                </div>
-              </div>
-            ) : (
-              <p className="text-gray-400 text-sm">Save your preferences to view your profile and match score.</p>
-            )}
-          </div>
-        </div>
-
-        {/* Button Container */}
+        {/* Buttons */}
         <div className="flex gap-3 justify-center">
-          <button onClick={savePreferences} className="px-6 py-2 bg-[#ffc600] text-[#07294d] font-semibold rounded-lg hover:bg-yellow-500 transition">Save</button>
-          <Link href="/my-profile" className="px-6 py-2 bg-[#07294d] text-white font-semibold rounded-lg hover:bg-blue-900 transition inline-block text-center">Preview</Link>
-          <button onClick={clearPreferences} className="px-6 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition">Clear</button>
+          <button onClick={savePreferences}>Save</button>
+          <button onClick={clearPreferences}>Clear</button>
         </div>
-        {saveMsg && <p className="text-center text-sm text-gray-600">{saveMsg}</p>}
-        {lastSaved && <p className="text-center text-xs text-gray-400">Last saved: {lastSaved}</p>}
 
+        {saveMsg && <p className="text-center">{saveMsg}</p>}
+        {lastSaved && <p className="text-center">Last saved: {lastSaved}</p>}
       </div>
     </div>
   );
