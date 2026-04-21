@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from 'react';
+import Link from 'next/link';
+
 interface Profile {
   id: string;
   email: string;
@@ -155,6 +158,24 @@ const INTEREST_OPTIONS = [
 ];
 
 export default function ExplorePage() {
+  const [connectedProfiles, setConnectedProfiles] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem("connectedProfiles");
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  function toggleConnection(profileId: string) {
+    setConnectedProfiles((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(profileId)) {
+        newSet.delete(profileId);
+      } else {
+        newSet.add(profileId);
+      }
+      localStorage.setItem("connectedProfiles", JSON.stringify([...newSet]));
+      return newSet;
+    });
+  }
+
   function getInterestEmoji(name: string): string {
     return INTEREST_OPTIONS.find((opt) => opt.name === name)?.emoji || "";
   }
@@ -165,21 +186,35 @@ export default function ExplorePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-6 py-10">
-      <div className="mx-auto max-w-6xl">
+    <div className="min-h-screen bg-[#f5f6fa] font-sans">
+
+      {/* Header */}
+      <div className="bg-[#07294d] px-8 py-5 flex items-center justify-between shadow-md">
+        <div>
+          <h1 className="text-2xl font-bold text-[#ffc600] tracking-wide">DragonMates</h1>
+          <p className="text-blue-200 text-sm mt-0.5">Browse verified campus roommates</p>
+        </div>
+        <div className="flex gap-3">
+          <Link href="/my-profile" className="px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition">
+            My Profile
+          </Link>
+          <Link href="/preferences" className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+            Preferences
+          </Link>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 py-10">
+
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-2 text-sm font-semibold text-amber-200">
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-300" />
-            DragonMates roommate preview
-          </div>
-          <h1 className="mt-6 text-5xl font-semibold tracking-tight text-white">Browse verified campus roommates</h1>
-          <p className="mt-4 max-w-2xl text-lg text-slate-300">
+          <h1 className="text-4xl font-semibold tracking-tight text-gray-900">Browse verified campus roommates</h1>
+          <p className="mt-4 max-w-2xl text-lg text-gray-600">
             Compare student profiles, shared routines, and lifestyle preferences to find the best match for your next housing term.
           </p>
         </div>
 
         {MOCK_PROFILES.length === 0 ? (
-          <div className="rounded-3xl border border-blue-800 bg-slate-900/80 p-10 text-center text-blue-200">
+          <div className="rounded-3xl border border-gray-200 bg-white p-10 text-center text-gray-600">
             No roommate profiles are available at the moment.
           </div>
         ) : (
@@ -187,31 +222,38 @@ export default function ExplorePage() {
             {MOCK_PROFILES.map((profile) => (
               <div
                 key={profile.id}
-                className="rounded-[28px] border border-blue-700/40 bg-slate-900/95 p-6 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.9)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-30px_rgba(15,23,42,0.9)]"
+                className="relative rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
               >
+                <button
+                  onClick={() => toggleConnection(profile.id)}
+                  className="absolute top-4 right-4 text-2xl transition-colors hover:scale-110"
+                  style={{ color: connectedProfiles.has(profile.id) ? '#ef4444' : '#6b7280' }}
+                >
+                  {connectedProfiles.has(profile.id) ? '❤️' : '🤝'}
+                </button>
                 <div
                   className={`mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br ${getAvatarColor(
                     profile.id,
-                  )} text-white shadow-lg shadow-blue-950/40`}
+                  )} text-white shadow-lg`}
                 >
                   <span className="text-3xl font-semibold">{profile.avatar_url}</span>
                 </div>
 
-                <h2 className="text-2xl font-semibold text-white">{profile.first_name} {profile.last_name}</h2>
-                <p className="mt-2 text-sm text-slate-400">{profile.home_town}, {profile.home_state}</p>
+                <h2 className="text-2xl font-semibold text-gray-900">{profile.first_name} {profile.last_name}</h2>
+                <p className="mt-2 text-sm text-gray-600">{profile.home_town}, {profile.home_state}</p>
 
-                <div className="mt-6 rounded-3xl border border-blue-700/30 bg-slate-950/70 p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-amber-300">Academic snapshot</p>
-                  <p className="mt-3 text-sm text-white">{profile.academics[0].academic_year} · {profile.academics[0].major}</p>
-                  {profile.academics[0].minor && <p className="mt-2 text-sm text-slate-400">Minor: {profile.academics[0].minor}</p>}
-                  <p className="mt-2 text-sm text-slate-400">GPA {profile.academics[0].gpa.toFixed(2)}</p>
+                <div className="mt-6 rounded-3xl border border-gray-200 bg-gray-50 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-[#07294d]">Academic snapshot</p>
+                  <p className="mt-3 text-sm text-gray-900">{profile.academics[0].academic_year} · {profile.academics[0].major}</p>
+                  {profile.academics[0].minor && <p className="mt-2 text-sm text-gray-600">Minor: {profile.academics[0].minor}</p>}
+                  <p className="mt-2 text-sm text-gray-600">GPA {profile.academics[0].gpa.toFixed(2)}</p>
                 </div>
 
                 <div className="mt-6 grid gap-2">
-                  <div className="text-xs uppercase tracking-[0.18em] text-amber-300">Shared interests</div>
+                  <div className="text-xs uppercase tracking-[0.18em] text-[#07294d]">Shared interests</div>
                   <div className="flex flex-wrap gap-2">
                     {profile.interests[0].interests.map((interest) => (
-                      <span key={interest} className="rounded-full border border-blue-700/40 bg-blue-950/70 px-3 py-1 text-sm text-slate-200">
+                      <span key={interest} className="rounded-full border border-gray-300 bg-gray-100 px-3 py-1 text-sm text-gray-700">
                         {getInterestEmoji(interest)} {interest}
                       </span>
                     ))}

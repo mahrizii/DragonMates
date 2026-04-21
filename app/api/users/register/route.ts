@@ -1,5 +1,7 @@
+// Mod by Patrick Melan, April 12 2026
+
 import { hashPassword } from "@/lib/password";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {

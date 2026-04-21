@@ -1,7 +1,7 @@
 // Author: Patrick Melan, April 7 2026
-// Mod by Patrick Melan, April 7 2026
+// Mod by Patrick Melan, April 12 2026
 
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { NextResponse } from "next/server";
 
 // POST onboarding profile data
@@ -23,17 +23,18 @@ export async function POST(request: Request) {
     // upsert living style data to Supabase living_styles table
     const livingStyleData = await supabaseAdmin
         .from("living_styles")
-        .upsert({ user_id, ...living });
+        .upsert({ user_id, ...living, music_genre: living.music_genre?.length ? living.music_genre : null });
 
-    // upsert interests data to Supabase interests table
+    // replace interests rows for this user
+    await supabaseAdmin.from("interests").delete().eq("user_id", user_id);
     const interestData = await supabaseAdmin
         .from("interests")
-        .upsert({ user_id, interests });
+        .insert(interests?.length ? interests.map((i: { name: string; description: string; emoji: string }) => ({ user_id, ...i })) : []);
 
     // assign any error messages to err variable
     const err = academicsData.error || livingStyleData.error || interestData.error;
-    
-    // if error exists, return error status 400 
+
+    // if error exists, return error status 400
     if (err) return NextResponse.json({ error: err.message }, { status: 400 });
 
     // return OK if successful
@@ -56,7 +57,7 @@ export async function GET(request: Request) {
         supabaseAdmin.from("users").select("*").eq("id", user_id).single(),
         supabaseAdmin.from("academics").select("*").eq("user_id", user_id).single(),
         supabaseAdmin.from("living_styles").select("*").eq("user_id", user_id).single(),
-        supabaseAdmin.from("interests").select("*").eq("user_id", user_id).single(),
+        supabaseAdmin.from("interests").select("*").eq("user_id", user_id),
     ]);
 
     // return all data in JSON object
@@ -83,8 +84,11 @@ export async function PATCH(request: Request) {
       await supabaseAdmin.from("academics").update(academics).eq("user_id", user_id);
     if (living)
       await supabaseAdmin.from("living_styles").update(living).eq("user_id", user_id);
-    if (interests)
-      await supabaseAdmin.from("interests").update({ interests }).eq("user_id", user_id);
+    if (interests) {
+      await supabaseAdmin.from("interests").delete().eq("user_id", user_id);
+      if (interests.length)
+        await supabaseAdmin.from("interests").insert(interests.map((i: { name: string; description: string; emoji: string }) => ({ user_id, ...i })));
+    }
 
     // return JSON success
     return NextResponse.json({ ok: true });

@@ -1,7 +1,9 @@
+// Mod by Patrick Melan, April 12 2026
+
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const ACADEMIC_YEARS = [
   "Freshman",
@@ -66,6 +68,9 @@ const INTEREST_OPTIONS = [
 
 export default function ProfileCreatePage() {
   const router = useRouter();
+  // get user_id passed as query param from register page
+  const searchParams = useSearchParams();
+  const user_id = searchParams.get("user_id");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -88,6 +93,9 @@ export default function ProfileCreatePage() {
 
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
 
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   function toggleGenre(genre: string) {
     setLiving((prev) => ({
       ...prev,
@@ -103,33 +111,80 @@ export default function ProfileCreatePage() {
     );
   }
 
+  const saveProfile = useCallback(async () => {
+    try {
+      const res = await fetch("/api/profiles", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id,
+          academics: { ...academics, gpa: parseFloat(academics.gpa) || null },
+          living,
+          interests: INTEREST_OPTIONS
+            .filter((o) => selectedInterests.includes(o.name))
+            .map(({ name, emoji }) => ({ name, emoji, description: null })),
+        }),
+      });
+      if (res.ok) {
+        setLastSaved(new Date());
+      }
+    } catch {
+      // Ignore errors for auto-save
+    }
+  }, [user_id, academics, living, selectedInterests]);
+
+  const debouncedSave = useCallback(() => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      saveProfile();
+    }, 2000);
+  }, [saveProfile]);
+
+  useEffect(() => {
+    debouncedSave();
+  }, [academics, living, selectedInterests, debouncedSave]);
+
+  const formatLastSaved = (date: Date) => {
+    return date.toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" });
+  };
+
   async function handleSubmit() {
     setLoading(true);
     setError("");
     try {
-      await Promise.all([
-        fetch("/api/users/academics", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...academics,
-            gpa: parseFloat(academics.gpa) || null,
-          }),
+      // Clear any pending auto-save and save immediately
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        await saveProfile();
+      }
+
+      // post all profile data in one request to /api/profiles
+      const res = await fetch("/api/profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id,
+          academics: { ...academics, gpa: parseFloat(academics.gpa) || null },
+          living,
+          interests: INTEREST_OPTIONS
+            .filter((o) => selectedInterests.includes(o.name))
+            .map(({ name, emoji }) => ({ name, emoji, description: null })),
         }),
-        fetch("/api/users/living-style", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(living),
-        }),
-        fetch("/api/users/interests", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ interests: selectedInterests }),
-        }),
-      ]);
-      router.push("/dashboard/{user_id-to-be-added-here}");
-    } catch {
-      setError("Something went wrong saving your profile. Please try again.");
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to save profile.");
+      }
+
+      // redirect to dashboard with the user's id
+      router.push(`/dashboard/${user_id}`);
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong saving your profile. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -423,6 +478,12 @@ export default function ProfileCreatePage() {
                 <div className="px-4 py-2.5 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                   {error}
                 </div>
+              )}
+
+              {lastSaved && (
+                <p className="text-xs text-gray-400 text-center">
+                  Last saved: {formatLastSaved(lastSaved)}
+                </p>
               )}
 
               <div className="flex gap-3 pt-2">
