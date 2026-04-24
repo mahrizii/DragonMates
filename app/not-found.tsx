@@ -1,13 +1,34 @@
 // app/not-found.tsx
 "use client";
 import Link from "next/link";
-   import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function NotFound() {
     const [mounted, setMounted] = useState(false);
    useEffect(() => { setMounted(true); }, []);
   return (
+
 <main className="min-h-screen flex flex-col items-center justify-center bg-[#07294d] px-6 text-center relative overflow-hidden font-[family-name:var(--font-geist-sans)]">
+     
+     <div className="absolute top-[-100px] left-[-100px] w-96 h-96 rounded-full bg-[#ffc600] opacity-5 animate-pulse pointer-events-none" />
+<div className="absolute bottom-[-80px] right-[-80px] w-[500px] h-[500px] rounded-full bg-[#ffc600] opacity-5 animate-pulse pointer-events-none" style={{ animationDelay: "1s" }} />
+<div className="absolute top-1/2 left-[-200px] w-80 h-80 rounded-full bg-blue-400 opacity-5 animate-pulse pointer-events-none" style={{ animationDelay: "2s" }} />
+   
+   {mounted && (
+  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    {[...Array(12)].map((_, i) => (
+      <div key={i} className="absolute w-1 h-1 rounded-full bg-[#ffc600] opacity-30"
+        style={{
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          animation: `float ${4 + Math.random() * 4}s ease-in-out infinite`,
+          animationDelay: `${Math.random() * 4}s`,
+        }}
+      />
+    ))}
+  </div>
+)}
+   
       {/* Dragon emoji */}
       <div className="relative mb-2">
   <div className="absolute inset-0 rounded-full bg-[#ffc600] opacity-20 blur-2xl scale-150 animate-pulse" />
@@ -63,6 +84,12 @@ export default function NotFound() {
         </Link>
       </div>
 
+<p
+  className="mt-12 text-xs text-blue-300 opacity-50 tracking-widest uppercase"
+  style={{ animation: "fadeSlideUp 0.6s ease-out 0.55s both" }}
+>
+  DragonMates &mdash; Drexel University Roommate Matching
+</p>
 
 <style>{`
         @keyframes dragonFloat {
