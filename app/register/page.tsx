@@ -1,3 +1,5 @@
+// Author: Patrick Melan, April 25 2026
+
 import SignUpForm from "@/components/SignUpForm";
 
 export const metadata = {
