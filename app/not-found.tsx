@@ -1,11 +1,9 @@
 // app/not-found.tsx
-"use client";
+
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 export default function NotFound() {
-    const [mounted, setMounted] = useState(false);
-   useEffect(() => { setMounted(true); }, []);
+
    const DOTS = Array.from({ length: 12 }, (_, i) => ({
   id: i,
   left: `${(i * 37 + 13) % 100}%`,
