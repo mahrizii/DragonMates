@@ -6,6 +6,13 @@ import { useEffect, useState } from "react";
 export default function NotFound() {
     const [mounted, setMounted] = useState(false);
    useEffect(() => { setMounted(true); }, []);
+   const DOTS = Array.from({ length: 12 }, (_, i) => ({
+  id: i,
+  left: `${(i * 37 + 13) % 100}%`,
+  top: `${(i * 53 + 7) % 100}%`,
+  duration: `${4 + (i % 4)}s`,
+  delay: `${(i % 4)}s`,
+}));
   return (
 
 <main className="min-h-screen flex flex-col items-center justify-center bg-[#07294d] px-6 text-center relative overflow-hidden font-[family-name:var(--font-geist-sans)]">
@@ -14,20 +21,20 @@ export default function NotFound() {
 <div className="absolute bottom-[-80px] right-[-80px] w-[500px] h-[500px] rounded-full bg-[#ffc600] opacity-5 animate-pulse pointer-events-none" style={{ animationDelay: "1s" }} />
 <div className="absolute top-1/2 left-[-200px] w-80 h-80 rounded-full bg-blue-400 opacity-5 animate-pulse pointer-events-none" style={{ animationDelay: "2s" }} />
    
-   {mounted && (
-  <div className="absolute inset-0 pointer-events-none overflow-hidden">
-    {[...Array(12)].map((_, i) => (
-      <div key={i} className="absolute w-1 h-1 rounded-full bg-[#ffc600] opacity-30"
-        style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          animation: `float ${4 + Math.random() * 4}s ease-in-out infinite`,
-          animationDelay: `${Math.random() * 4}s`,
-        }}
-      />
-    ))}
-  </div>
-)}
+   <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {DOTS.map((dot) => (
+          <div
+            key={dot.id}
+            className="absolute w-1 h-1 rounded-full bg-[#ffc600] opacity-30"
+            style={{
+              left: dot.left,
+              top: dot.top,
+              animation: `float ${dot.duration} ease-in-out infinite`,
+              animationDelay: dot.delay,
+            }}
+          />
+        ))}
+      </div>
    
       {/* Dragon emoji */}
       <div className="relative mb-2">
