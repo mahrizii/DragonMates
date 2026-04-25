@@ -66,11 +66,11 @@ export default function NotFound() {
 <div className="mt-8 w-16 h-[2px] rounded-full bg-[#ffc600] mx-auto" style={{ animation: "fadeSlideUp 0.6s ease-out 0.35s both" }} />
 
       {/* Home button */}
-      <div style={{ animation: "fadeSlideUp 0.6s ease-out 0.45s both" }}>
-        <Link
-          href="/"
-          className="mt-8 inline-flex items-center gap-2 bg-[#ffc600] text-[#07294d] font-bold text-base px-8 py-3 rounded-full shadow-lg transition-all duration-200 hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(255,198,0,0.5)] active:scale-95"
-        >
+      <Link
+        href="/"
+        className="mt-8 inline-flex items-center gap-2 bg-[#ffc600] text-[#07294d] font-bold text-base px-8 py-3 rounded-full shadow-lg transition-all duration-200 hover:bg-yellow-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(255,198,0,0.5)] active:scale-95"
+        style={{ animation: "fadeSlideUp 0.6s ease-out 0.45s both" }}
+      >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
@@ -81,8 +81,7 @@ export default function NotFound() {
             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h4a1 1 0 001-1v-3h2v3a1 1 0 001 1h4a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
           </svg>
           Back to Home
-        </Link>
-      </div>
+       </Link>
 
 <p
   className="mt-12 text-xs text-blue-300 opacity-50 tracking-widest uppercase"
