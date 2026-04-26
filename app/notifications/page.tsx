@@ -1,4 +1,44 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+type NotificationRecord = {
+  id: string;
+  title: string | null;
+  body: string | null;
+  created_at: string;
+};
+
 export default function NotificationsPage() {
+  const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadNotifications() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch("/api/notifications", { method: "GET" });
+        const payload = await response.json();
+
+        if (!response.ok) {
+          setError(payload.error || "Failed to load notifications.");
+          return;
+        }
+
+        setNotifications(payload.notifications ?? []);
+      } catch {
+        setError("Unable to load notifications right now.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadNotifications();
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#f5f6fa] px-6 py-10">
       <div className="mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
@@ -10,6 +50,39 @@ export default function NotificationsPage() {
           Updates about profile activity, new matches, and app events will
           appear here.
         </p>
+        {loading ? (
+          <p className="mt-6 text-sm text-gray-500">Loading notifications...</p>
+        ) : null}
+        {error ? (
+          <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        ) : null}
+        {!loading && !error && notifications.length === 0 ? (
+          <p className="mt-6 text-sm text-gray-500">
+            No notifications yet. We will show updates here as they arrive.
+          </p>
+        ) : null}
+        {!loading && !error && notifications.length > 0 ? (
+          <ul className="mt-6 space-y-3">
+            {notifications.map((notification) => (
+              <li
+                key={notification.id}
+                className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+              >
+                <p className="text-sm font-semibold text-gray-900">
+                  {notification.title || "Notification"}
+                </p>
+                <p className="mt-1 text-sm text-gray-600">
+                  {notification.body || "You have a new update."}
+                </p>
+                <p className="mt-2 text-xs text-gray-500">
+                  {new Date(notification.created_at).toLocaleString()}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
     </div>
   );
