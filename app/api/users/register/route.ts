@@ -1,7 +1,9 @@
 // Mod by Patrick Melan, April 12 2026
+// Mod: Patrick Melan, April 25 2026
 
 import { hashPassword } from "@/lib/password";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -39,6 +41,17 @@ export async function POST(request: Request) {
   });
 
   if (profileError) return NextResponse.json({ error: profileError.message }, { status: 400 });
+
+  if (authData.session) {
+    const cookieStore = await cookies();
+    cookieStore.set("session", authData.session.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+  }
 
   return NextResponse.json({ user: authData.user, profile: profileData });
 }
