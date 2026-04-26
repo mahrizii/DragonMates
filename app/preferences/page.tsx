@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, startTransition } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const defaultPrefs = {
@@ -15,11 +16,13 @@ const defaultPrefs = {
 };
 
 export default function PreferencesPage() {
+  const router = useRouter();
   const [prefs, setPrefs] = useState({ ...defaultPrefs });
   const [matchScore, setMatchScore] = useState<number | null>(null);
   const [saveMsg, setSaveMsg] = useState("");
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [errors, setErrors] = useState<Partial<Record<keyof typeof defaultPrefs, string>>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -141,7 +144,17 @@ export default function PreferencesPage() {
     const newErrors = validate();
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
+    
+    setIsSaving(true);
     setSaveMsg("Preferences saved!");
+    
+    // Save to storage and redirect to profile
+    savePreferencesToStorage();
+    
+    // Brief delay to show save message before redirect
+    setTimeout(() => {
+      router.push("/my-profile");
+    }, 500);
   }
 
   function clearPreferences() {
@@ -272,7 +285,13 @@ export default function PreferencesPage() {
 
         {/* Button Container */}
         <div className="flex gap-3 justify-center">
-          <button onClick={savePreferences} className="px-6 py-2 bg-[#ffc600] text-[#07294d] font-semibold rounded-lg hover:bg-yellow-500 transition">Save</button>
+          <button 
+            onClick={savePreferences} 
+            disabled={isSaving}
+            className="px-6 py-2 bg-[#ffc600] text-[#07294d] font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {isSaving ? "Saving..." : "Save"}
+          </button>
           <Link href="/my-profile" className="px-6 py-2 bg-[#07294d] text-white font-semibold rounded-lg hover:bg-blue-900 transition inline-block text-center">Preview</Link>
           <button onClick={clearPreferences} className="px-6 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition">Clear</button>
         </div>
