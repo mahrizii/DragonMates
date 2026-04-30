@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 
-export default function NotFound() {
-
-   const DOTS = Array.from({ length: 12 }, (_, i) => ({
+const DOTS = Array.from({ length: 12 }, (_, i) => ({
   id: i,
   left: `${(i * 37 + 13) % 100}%`,
   top: `${(i * 53 + 7) % 100}%`,
   duration: `${4 + (i % 4)}s`,
   delay: `${(i % 4)}s`,
 }));
+
+export default function NotFound() {
   return (
 
 <main className="min-h-screen flex flex-col items-center justify-center bg-[#07294d] px-6 text-center relative overflow-hidden font-[family-name:var(--font-geist-sans)]">
