@@ -44,9 +44,18 @@ export async function POST(request: Request) {
 // GET profile data
 export async function GET(request: Request) {
 
-    // assign user_id from search parameters to user_id variable
-    const user_id = new URL(request.url).searchParams.get("user_id");
-    
+    // try query param first, fall back to session cookie
+    let user_id = new URL(request.url).searchParams.get("user_id");
+
+    if (!user_id) {
+        const { cookies } = await import("next/headers");
+        const token = (await cookies()).get("session")?.value;
+        if (token) {
+            const { data } = await supabaseAdmin.auth.getUser(token);
+            user_id = data.user?.id ?? null;
+        }
+    }
+
     // return error if user_id isn't included in request
     if (!user_id)
         return NextResponse.json({ error: "Error: user_id required" }, { status: 400 });

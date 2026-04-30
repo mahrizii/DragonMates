@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Bell, House, MessageCircle, UserRound, Users } from "lucide-react";
 
 const navItems = [
-  { href: "/", label: "Home", icon: House },
+  { href: "/dashboard", label: "Home", icon: House },
   { href: "/profile", label: "Profile", icon: UserRound },
   { href: "/matches", label: "Matches", icon: Users },
   { href: "/messages", label: "Messages", icon: MessageCircle },
@@ -18,8 +18,7 @@ export default function NavBar() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-blue-900/20 bg-[#07294d] shadow-[0_-8px_24px_rgba(7,41,77,0.28)]"
-    >
+      className="sticky top-0 z-50 border-b border-blue-900/20 bg-[#07294d] shadow-[0_8px_24px_rgba(7,41,77,0.28)]">
       <div className="mx-auto grid max-w-4xl grid-cols-5">
         {navItems.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href;
@@ -33,8 +32,7 @@ export default function NavBar() {
                   ? "bg-[#0a3a6e] text-[#ffc600]"
                   : "text-blue-100 hover:bg-[#0a3a6e] hover:text-white"
               }`}
-              aria-current={isActive ? "page" : undefined}
-            >
+              aria-current={isActive ? "page" : undefined}>
               <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
               <span>{label}</span>
             </Link>

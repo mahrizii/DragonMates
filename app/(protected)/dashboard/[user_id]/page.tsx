@@ -53,16 +53,6 @@ export default function DashboardPage({
 
   return (
     <div className="h-screen bg-[#f5f6fa] font-sans flex flex-col overflow-hidden">
-      <div className="bg-[#07294d] px-8 py-4 flex items-center justify-between shadow-md shrink-0">
-        <div>
-          <h1 className="text-xl font-bold text-[#ffc600] tracking-wide">
-            DragonMates
-          </h1>
-          <p className="text-blue-300 text-xs mt-0.5">Dashboard</p>
-        </div>
-        <span className="text-blue-200 text-sm">ID: {user_id}</span>
-      </div>
-
       <div className="flex flex-1 gap-4 p-6 overflow-hidden">
         {/* profile sidebar */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col w-64 shrink-0 overflow-hidden self-start">
@@ -125,10 +115,21 @@ export default function DashboardPage({
             <div className="bg-[#07294d] px-5 py-3">
               <h2 className="text-white font-semibold">Interests</h2>
             </div>
-            <div className="p-5 text-sm text-gray-400">
-              {profile?.interests
-                ?.map((i) => `${i.emoji} ${i.name}`)
-                .join(", ") || "—"}
+            <div className="p-5">
+              {profile?.interests?.length ? (
+                <div className="flex flex-wrap gap-2">
+                  {profile.interests.map((i) => (
+                    <span
+                      key={i.name}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-sm font-medium text-[#07294d]">
+                      <span>{i.emoji}</span>
+                      {i.name}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400">—</p>
+              )}
             </div>
           </div>
         </div>

@@ -177,8 +177,7 @@ export default function ProfileCreatePage() {
         throw new Error(data.error || "Failed to save profile.");
       }
 
-      // redirect to dashboard with the user's id
-      router.push(`/dashboard/${user_id}`);
+      router.push("/dashboard");
     } catch (err: unknown) {
       setError(
         err instanceof Error
@@ -246,7 +245,7 @@ export default function ProfileCreatePage() {
                             academic_year: e.target.value,
                           })
                         }
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]">
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]">
                         <option value="">Select...</option>
                         {ACADEMIC_YEARS.map((y) => (
                           <option key={y}>{y}</option>
@@ -267,7 +266,7 @@ export default function ProfileCreatePage() {
                           setAcademics({ ...academics, gpa: e.target.value })
                         }
                         placeholder="3.50"
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]"
                       />
                     </div>
                   </div>
@@ -281,7 +280,7 @@ export default function ProfileCreatePage() {
                       onChange={(e) =>
                         setAcademics({ ...academics, major: e.target.value })
                       }
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]">
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]">
                       <option value="">Select your major...</option>
                       {MAJORS.map((m) => (
                         <option key={m}>{m}</option>
@@ -299,7 +298,7 @@ export default function ProfileCreatePage() {
                         setAcademics({ ...academics, minor: e.target.value })
                       }
                       placeholder="e.g. Mathematics"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]"
                     />
                   </div>
                 </>
@@ -318,7 +317,7 @@ export default function ProfileCreatePage() {
                         onChange={(e) =>
                           setLiving({ ...living, time_sleep: e.target.value })
                         }
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]"
                       />
                     </div>
                     <div>
@@ -331,7 +330,7 @@ export default function ProfileCreatePage() {
                         onChange={(e) =>
                           setLiving({ ...living, time_wake: e.target.value })
                         }
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#ffc600]"
                       />
                     </div>
                   </div>

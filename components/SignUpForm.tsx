@@ -177,7 +177,7 @@ export default function SignUpForm() {
         throw new Error(data.error || "Registration failed.");
       }
 
-      router.push("/profile/create");
+      router.push(`/profile/create?user_id=${data.user.id}`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -207,7 +207,7 @@ export default function SignUpForm() {
       <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
         <div className="w-full max-w-4xl">
           <div className="rounded-[32px] border border-blue-900/20 bg-white shadow-xl shadow-blue-900/10">
-            <div className="p-6 sm:p-8">
+            <div className="border-b border-slate-100 p-6 sm:p-8">
               <div className="grid gap-3 sm:grid-cols-2 sm:items-center">
                 {stepInfo.map((info, index) => (
                   <div key={info.label} className="flex items-center gap-3">
@@ -229,7 +229,7 @@ export default function SignUpForm() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6 px-6 pb-8 sm:px-8">
+            <form onSubmit={handleSubmit} className="space-y-6 px-6 pb-8 pt-6 sm:px-8 sm:pt-8">
               {step === 1 && (
                 <div className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -366,7 +366,7 @@ export default function SignUpForm() {
                 <div
                   role="status"
                   aria-live="polite"
-                  className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                  className={`rounded-2xl border px-4 py-3 text-sm ${step === 2 ? "border-amber-200 bg-amber-50 text-amber-700" : "border-red-200 bg-red-50 text-red-700"}`}
                 >
                   {error}
                 </div>
