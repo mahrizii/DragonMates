@@ -15,12 +15,12 @@ export default function HomePage() {
         </div>
         <div className="flex items-center gap-4">
           <Link
-            href="/auth/register"
+            href="/login"
             className="text-sm font-semibold text-slate-200 transition hover:text-white">
             Sign in
           </Link>
           <Link
-            href="/auth/register"
+            href="/register"
             className="rounded-full bg-amber-400 px-4 py-2 text-sm font-semibold text-[#07294d] transition hover:bg-amber-300">
             Get Started
           </Link>
