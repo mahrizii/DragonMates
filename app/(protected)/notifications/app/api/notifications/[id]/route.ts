@@ -3,17 +3,27 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
   req: NextRequest,
-{ params }: { params: Promise<{ id: string }> }) {
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await params;
 
-    const { error } = await supabase
-      .from("notifcations")
-      .update({ read: true })
-      .eq("id", id);
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    if (!id) {
+        return NextResponse.json({ error: "Missing notification ID." }, { status: 400 });
+}
+const { error, count } = await supabase
+  .from("notifcations")
+  .update({ read: true }, { count: "exact" })
+  .eq("id", id);
+
+if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+}
+
+if (count === 0) {
+  return NextResponse.json({ error: "Notification not found." }, { status: 404 });
+}
+
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch {
