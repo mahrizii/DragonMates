@@ -7,6 +7,7 @@ type NotificationRecord = {
   title: string | null;
   body: string | null;
   created_at: string;
+  read: boolean;
 };
 
 export default function NotificationsPage() {
