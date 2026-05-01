@@ -40,8 +40,14 @@ export default function NotificationsPage() {
     loadNotifications();
   }, []);
 
-  return (
-    <div className="min-h-screen bg-[#f5f6fa] px-6 py-10">
+async function markAsRead(id: string) {
+    await fetch(`/api/notifications/${id}`, { method: "PATCH" });
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  }
+
+  return (    <div className="min-h-screen bg-[#f5f6fa] px-6 py-10">
       <div className="mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#07294d]">
           DragonMates
