@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { Bell, House, MessageCircle, UserRound, Users } from "lucide-react";
 
 const navItems = [
@@ -14,6 +15,15 @@ const navItems = [
 
 export default function NavBar() {
   const pathname = usePathname();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      setUnreadCount((e as CustomEvent).detail);
+    };
+    window.addEventListener("unread-count", handler);
+    return () => window.removeEventListener("unread-count", handler);
+  }, []);
 
   return (
     <nav
@@ -33,8 +43,16 @@ export default function NavBar() {
                   : "text-blue-100 hover:bg-[#0a3a6e] hover:text-white"
               }`}
               aria-current={isActive ? "page" : undefined}>
-              <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
-              <span>{label}</span>
+{href === "/notifications" && unreadCount > 0 ? (
+  <div className="relative">
+    <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
+    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+      {unreadCount}
+    </span>
+  </div>
+) : (
+  <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
+)}              <span>{label}</span>
             </Link>
           );
         })}
