@@ -75,9 +75,14 @@ async function markAsRead(id: string) {
             {notifications.map((notification) => (
               <li
                 key={notification.id}
-                className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+                onClick={() => markAsRead(notification.id)}
+                className={`cursor-pointer rounded-lg border px-4 py-3 ${
+                  notification.read
+                    ? "border-gray-200 bg-gray-50"
+                    : "border-blue-200 bg-blue-50"
+                }`}
               >
-                <p className="text-sm font-semibold text-gray-900">
+                <p className={`text-sm font-semibold ${notification.read ? "text-gray-500" : "text-gray-900"}`}>
                   {notification.title || "Notification"}
                 </p>
                 <p className="mt-1 text-sm text-gray-600">
