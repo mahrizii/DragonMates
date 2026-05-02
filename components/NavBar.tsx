@@ -52,7 +52,8 @@ export default function NavBar() {
   </div>
 ) : (
   <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
-)}              <span>{label}</span>
+)}              
+                <span>{label}</span>
             </Link>
           );
         })}
