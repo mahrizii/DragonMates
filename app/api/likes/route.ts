@@ -48,6 +48,58 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    const { error: likeNotificationError } = await supabaseAdmin
+      .from("notifcations")
+      .insert({
+        user_id: liked_id,
+        title: "New anonymous like",
+        body: "Someone liked your profile.",
+        read: false,
+      })
+
+    if (likeNotificationError) {
+      return NextResponse.json({ error: likeNotificationError.message }, { status: 500 })
+    }
+
+    const { data: mutualLike, error: mutualLikeError } = await supabaseAdmin
+      .from("likes")
+      .select("id")
+      .eq("liker_id", liked_id)
+      .eq("liked_id", liker_id)
+      .maybeSingle()
+
+    if (mutualLikeError) {
+      return NextResponse.json({ error: mutualLikeError.message }, { status: 500 })
+    }
+
+    if (mutualLike) {
+      const { error: likerMatchNotificationError } = await supabaseAdmin
+        .from("notifcations")
+        .insert({
+          user_id: liker_id,
+          title: "It's a match!",
+          body: "You and someone you liked have matched.",
+          read: false,
+        })
+
+      if (likerMatchNotificationError) {
+        return NextResponse.json({ error: likerMatchNotificationError.message }, { status: 500 })
+      }
+
+      const { error: likedMatchNotificationError } = await supabaseAdmin
+        .from("notifcations")
+        .insert({
+          user_id: liked_id,
+          title: "It's a match!",
+          body: "You and someone you liked have matched.",
+          read: false,
+        })
+
+      if (likedMatchNotificationError) {
+        return NextResponse.json({ error: likedMatchNotificationError.message }, { status: 500 })
+      }
+    }
+
     return NextResponse.json({ like: data }, { status: 201 })
   } catch {
     return NextResponse.json({ error: "Unexpected server error" }, { status: 500 })

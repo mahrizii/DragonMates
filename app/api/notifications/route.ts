@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     }
 
     const { data, error } = await supabaseAdmin
-      .from("notifications")
+      .from("notifcations")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
@@ -43,6 +43,42 @@ export async function GET(request: Request) {
   } catch {
     return NextResponse.json(
       { error: "Unexpected server error while loading notifications." },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { user_id, title, body: notificationBody } = body ?? {};
+
+    if (!user_id || !title || !notificationBody) {
+      return NextResponse.json(
+        { error: "user_id, title, and body are required." },
+        { status: 400 },
+      );
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("notifcations")
+      .insert({
+        user_id,
+        title,
+        body: notificationBody,
+        read: false,
+      })
+      .select("*")
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ notification: data }, { status: 201 });
+  } catch {
+    return NextResponse.json(
+      { error: "Unexpected server error while creating notification." },
       { status: 500 },
     );
   }
