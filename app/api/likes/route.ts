@@ -73,12 +73,20 @@ export async function POST(request: Request) {
     }
 
     if (mutualLike) {
+      const [{ data: likerUser }, { data: likedUser }] = await Promise.all([
+        supabaseAdmin.from("users").select("first_name, last_name").eq("id", liker_id).single(),
+        supabaseAdmin.from("users").select("first_name, last_name").eq("id", liked_id).single(),
+      ])
+
+      const likerName = likerUser ? `${likerUser.first_name} ${likerUser.last_name}` : "someone"
+      const likedName = likedUser ? `${likedUser.first_name} ${likedUser.last_name}` : "someone"
+
       const { error: likerMatchNotificationError } = await supabaseAdmin
         .from("notifcations")
         .insert({
           user_id: liker_id,
           title: "It's a match!",
-          body: "You and someone you liked have matched.",
+          body: `You and ${likedName} have matched.`,
           read: false,
         })
 
@@ -91,7 +99,7 @@ export async function POST(request: Request) {
         .insert({
           user_id: liked_id,
           title: "It's a match!",
-          body: "You and someone you liked have matched.",
+          body: `You and ${likerName} have matched.`,
           read: false,
         })
 

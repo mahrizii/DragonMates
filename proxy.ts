@@ -13,12 +13,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/dashboard/:user_id*",
-    "/explore",
-    "/my-profile",
-    "/preferences",
-    "/profile",
-    "/profile/create",
-  ],
+  matcher: [],
 };
