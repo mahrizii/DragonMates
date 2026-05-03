@@ -60,7 +60,7 @@ export default async function MatchesPage() {
   if (mutualRaw.length > 0) {
     const { data } = await supabaseAdmin
       .from("users")
-      .select("id, first_name, last_name, avatar_url")
+      .select("id, first_name, last_name")
       .in("id", mutualRaw.map((m) => m.user_id))
     matchUsers = (data as MatchUser[]) ?? []
   }

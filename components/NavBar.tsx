@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Bell, House, MessageCircle, UserRound, Users } from "lucide-react";
+import { Bell, Compass, House, MessageCircle, UserRound, Users } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Home", icon: House },
+  { href: "/explore", label: "Explore", icon: Compass },
   { href: "/profile", label: "Profile", icon: UserRound },
   { href: "/matches", label: "Matches", icon: Users },
   { href: "/messages", label: "Messages", icon: MessageCircle },
@@ -29,7 +30,7 @@ export default function NavBar() {
     <nav
       aria-label="Primary"
       className="sticky top-0 z-50 border-b border-blue-900/20 bg-[#07294d] shadow-[0_8px_24px_rgba(7,41,77,0.28)]">
-      <div className="mx-auto grid max-w-4xl grid-cols-5">
+      <div className="mx-auto grid max-w-5xl grid-cols-6">
         {navItems.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href;
 

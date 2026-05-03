@@ -41,36 +41,26 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      // unique_violation — like already exists
       if (error.code === "23505") {
         return NextResponse.json({ error: "Already liked this user" }, { status: 409 })
       }
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    const { error: likeNotificationError } = await supabaseAdmin
-      .from("notifcations")
-      .insert({
-        user_id: liked_id,
-        title: "New anonymous like",
-        body: "Someone liked your profile.",
-        read: false,
-      })
+    // Notifications are non-critical — fire and don't block the response
+    supabaseAdmin.from("notifcations").insert({
+      user_id: liked_id,
+      title: "New anonymous like",
+      body: "Someone liked your profile.",
+      read: false,
+    })
 
-    if (likeNotificationError) {
-      return NextResponse.json({ error: likeNotificationError.message }, { status: 500 })
-    }
-
-    const { data: mutualLike, error: mutualLikeError } = await supabaseAdmin
+    const { data: mutualLike } = await supabaseAdmin
       .from("likes")
       .select("id")
       .eq("liker_id", liked_id)
       .eq("liked_id", liker_id)
       .maybeSingle()
-
-    if (mutualLikeError) {
-      return NextResponse.json({ error: mutualLikeError.message }, { status: 500 })
-    }
 
     if (mutualLike) {
       const [{ data: likerUser }, { data: likedUser }] = await Promise.all([
@@ -81,34 +71,22 @@ export async function POST(request: Request) {
       const likerName = likerUser ? `${likerUser.first_name} ${likerUser.last_name}` : "someone"
       const likedName = likedUser ? `${likedUser.first_name} ${likedUser.last_name}` : "someone"
 
-      const { error: likerMatchNotificationError } = await supabaseAdmin
-        .from("notifcations")
-        .insert({
-          user_id: liker_id,
-          title: "It's a match!",
-          body: `You and ${likedName} have matched.`,
-          read: false,
-        })
+      supabaseAdmin.from("notifcations").insert({
+        user_id: liker_id,
+        title: "It's a match!",
+        body: `You and ${likedName} have matched.`,
+        read: false,
+      })
 
-      if (likerMatchNotificationError) {
-        return NextResponse.json({ error: likerMatchNotificationError.message }, { status: 500 })
-      }
-
-      const { error: likedMatchNotificationError } = await supabaseAdmin
-        .from("notifcations")
-        .insert({
-          user_id: liked_id,
-          title: "It's a match!",
-          body: `You and ${likerName} have matched.`,
-          read: false,
-        })
-
-      if (likedMatchNotificationError) {
-        return NextResponse.json({ error: likedMatchNotificationError.message }, { status: 500 })
-      }
+      supabaseAdmin.from("notifcations").insert({
+        user_id: liked_id,
+        title: "It's a match!",
+        body: `You and ${likerName} have matched.`,
+        read: false,
+      })
     }
 
-    return NextResponse.json({ like: data }, { status: 201 })
+    return NextResponse.json({ like: data, matched: !!mutualLike }, { status: 201 })
   } catch {
     return NextResponse.json({ error: "Unexpected server error" }, { status: 500 })
   }

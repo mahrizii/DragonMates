@@ -53,7 +53,7 @@ export async function GET() {
     const matchUserIds = mutualRaw.map((m) => m.user_id)
     const { data: matchUsers, error: usersError } = await supabaseAdmin
       .from("users")
-      .select("id, first_name, last_name, avatar_url")
+      .select("id, first_name, last_name")
       .in("id", matchUserIds)
 
     if (usersError) return NextResponse.json({ error: usersError.message }, { status: 500 })
