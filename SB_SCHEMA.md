@@ -13,6 +13,8 @@ Schema for Supabase PostgreSQL Tables
 | home_state    | text        |
 | social_links  | _text       |
 | avatar_url    | text        |
+| can_receive_notifications | bool |
+
 
 # Auth Metadata
 
@@ -54,3 +56,15 @@ User passwords are hashed using Node's `crypto.scryptSync()` with a 16-byte salt
 | name         | text        |
 | description  | text        |
 | emoji        | varchar     |
+
+# Notifications
+
+| Column Name  | Type        |
+| ------------ | ----------- |
+| id           | int8        |
+| created_at   | timestamptz |
+| user_id      | int8        |
+| type         | text        |
+| title        | text        |
+| body         | text        |
+| read         | bool        |
