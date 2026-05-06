@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Bell, Compass, House, MessageCircle, UserRound, Users } from "lucide-react";
+import { Bell, Compass, House, MessageCircle, Settings, UserRound, Users } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Home", icon: House },
@@ -12,6 +12,8 @@ const navItems = [
   { href: "/matches", label: "Matches", icon: Users },
   { href: "/messages", label: "Messages", icon: MessageCircle },
   { href: "/notifications", label: "Notifications", icon: Bell },
+  { href: "/settings", label: "Settings", icon: Settings },
+
 ];
 
 export default function NavBar() {
