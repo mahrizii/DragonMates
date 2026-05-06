@@ -1,4 +1,5 @@
 // Author: Patrick Melan, April 28 2026
+// Modified: Patrick Melan 5/5/26
 
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { cookies } from "next/headers"
@@ -87,6 +88,48 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ like: data, matched: !!mutualLike }, { status: 201 })
+  } catch {
+    return NextResponse.json({ error: "Unexpected server error" }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const cookieStore = await cookies()
+    const sessionToken = cookieStore.get("session")?.value
+
+    if (!sessionToken) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(sessionToken)
+    if (authError || !authData.user) {
+      return NextResponse.json(
+        { error: authError?.message || "Could not identify user from session." },
+        { status: 401 },
+      )
+    }
+
+    const liker_id = authData.user.id
+
+    const body = await request.json()
+    const { liked_id } = body
+
+    if (!liked_id) {
+      return NextResponse.json({ error: "liked_id is required" }, { status: 400 })
+    }
+
+    const { error } = await supabaseAdmin
+      .from("likes")
+      .delete()
+      .eq("liker_id", liker_id)
+      .eq("liked_id", liked_id)
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 })
   } catch {
     return NextResponse.json({ error: "Unexpected server error" }, { status: 500 })
   }
