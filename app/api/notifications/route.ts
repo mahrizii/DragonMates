@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     }
 
     const { data, error } = await supabaseAdmin
-      .from("notifcations")
+      .from("notifications")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
