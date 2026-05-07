@@ -96,7 +96,7 @@ export default function LikeButton({
       <div className="flex flex-col gap-1">
         <button
           onClick={handleUnlike}
-          disabled={status === "loading"}
+          disabled={false}
           className="flex items-center gap-2 rounded-lg bg-green-100 px-6 py-3 font-semibold text-green-700 transition hover:bg-red-50 hover:text-red-600"
         >
           <span>❤️</span> Liked!
