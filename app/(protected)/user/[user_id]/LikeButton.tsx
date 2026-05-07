@@ -40,6 +40,30 @@ export default function LikeButton({
     }
   }
 
+  async function handleUnlike() {
+    setStatus("loading");
+    setErrMsg(null);
+    try {
+      const res = await fetch("/api/likes", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ liked_id: likedId }),
+      });
+      if (res.ok) {
+        setStatus("idle");
+      } else if (res.status === 401) {
+        setStatus("unauth");
+      } else {
+        const body = await res.json().catch(() => ({}));
+        setErrMsg(body.error ?? `Error ${res.status}`);
+        setStatus("error");
+      }
+    } catch {
+      setErrMsg("Network error");
+      setStatus("error");
+    }
+  }
+
   if (compact) {
     if (status === "unauth") return <span className="text-xs text-gray-400">Log in to like</span>;
     if (status === "error") return (
@@ -49,10 +73,10 @@ export default function LikeButton({
     );
     return (
       <button
-        onClick={status === "liked" ? undefined : handleLike}
+        onClick={status === "liked" ? handleUnlike : handleLike}
         disabled={status === "loading"}
         className="text-2xl transition-transform hover:scale-110 disabled:opacity-50"
-        aria-label={status === "liked" ? "Liked" : "Like"}
+        aria-label={status === "liked" ? "Unlike" : "Like"}
       >
         {status === "liked" ? "❤️" : status === "loading" ? "⏳" : "🤝"}
       </button>
@@ -69,8 +93,14 @@ export default function LikeButton({
 
   if (status === "liked") {
     return (
-      <div className="flex items-center gap-2 rounded-lg bg-green-100 px-6 py-3 font-semibold text-green-700">
-        <span>❤️</span> Liked!
+      <div className="flex flex-col gap-1">
+        <button
+          onClick={handleUnlike}
+          disabled={status === "loading"}
+          className="flex items-center gap-2 rounded-lg bg-green-100 px-6 py-3 font-semibold text-green-700 transition hover:bg-red-50 hover:text-red-600"
+        >
+          <span>❤️</span> Liked!
+        </button>
       </div>
     );
   }
