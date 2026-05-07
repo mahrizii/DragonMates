@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     }
 
     const { data, error } = await supabaseAdmin
-      .from("notifcations")
+      .from("notifications")
       .insert({
         user_id,
         title,

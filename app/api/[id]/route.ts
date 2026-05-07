@@ -12,7 +12,7 @@ export async function PATCH(
         return NextResponse.json({ error: "Missing notification ID." }, { status: 400 });
 }
 const { error, count } = await supabase
-  .from("notifcations")
+  .from("notifications")
   .update({ read: true }, { count: "exact" })
   .eq("id", id);
 

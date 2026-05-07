@@ -108,7 +108,7 @@ export default async function ExplorePage() {
 
     for (const i of (allInterests ?? []) as InterestRow[]) {
       const list = interestsMap.get(i.user_id) ?? [];
-      list.push(i.name);
+      if (!list.includes(i.name)) list.push(i.name);
       interestsMap.set(i.user_id, list);
     }
 

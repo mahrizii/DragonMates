@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     }
 
     // Notifications are non-critical — fire and don't block the response
-    supabaseAdmin.from("notifcations").insert({
+    supabaseAdmin.from("notifications").insert({
       user_id: liked_id,
       title: "New anonymous like",
       body: "Someone liked your profile.",
@@ -72,14 +72,14 @@ export async function POST(request: Request) {
       const likerName = likerUser ? `${likerUser.first_name} ${likerUser.last_name}` : "someone"
       const likedName = likedUser ? `${likedUser.first_name} ${likedUser.last_name}` : "someone"
 
-      supabaseAdmin.from("notifcations").insert({
+      supabaseAdmin.from("notifications").insert({
         user_id: liker_id,
         title: "It's a match!",
         body: `You and ${likedName} have matched.`,
         read: false,
       })
 
-      supabaseAdmin.from("notifcations").insert({
+      supabaseAdmin.from("notifications").insert({
         user_id: liked_id,
         title: "It's a match!",
         body: `You and ${likerName} have matched.`,
