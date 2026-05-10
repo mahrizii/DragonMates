@@ -58,6 +58,58 @@ function avatarColor(id: string): string {
   return AVATAR_COLORS[index];
 }
 
+type LivingStyleRow = {
+  user_id: string;
+  noise_level: number;
+  cleanliness: number;
+  comfortable_temp: number;
+  time_sleep: string;
+  time_wake: string;
+  music_genre: string[] | null;
+};
+
+function toMinutes(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+function computeScore(
+  u: LivingStyleRow,
+  t: LivingStyleRow,
+  uInterests: string[],
+  tInterests: string[],
+): number {
+  const noiseScore = 1 - Math.abs(u.noise_level - t.noise_level) / 4;
+  const cleanScore = 1 - Math.abs(u.cleanliness - t.cleanliness) / 4;
+  const tempScore = 1 - Math.abs(u.comfortable_temp - t.comfortable_temp) / 25;
+  const sleepDiff = Math.abs(toMinutes(u.time_sleep) - toMinutes(t.time_sleep));
+  const wakeDiff = Math.abs(toMinutes(u.time_wake) - toMinutes(t.time_wake));
+  const sleepScore = 1 - Math.min(sleepDiff, 720) / 720;
+  const wakeScore = 1 - Math.min(wakeDiff, 720) / 720;
+
+  const uGenres = new Set<string>(u.music_genre ?? []);
+  const tGenres = new Set<string>(t.music_genre ?? []);
+  const genreUnion = new Set([...uGenres, ...tGenres]);
+  const genreIntersect = [...uGenres].filter((g) => tGenres.has(g)).length;
+  const genreScore = genreUnion.size === 0 ? 1 : genreIntersect / genreUnion.size;
+
+  const uNames = new Set(uInterests);
+  const tNames = new Set(tInterests);
+  const interestUnion = new Set([...uNames, ...tNames]);
+  const interestIntersect = [...uNames].filter((n) => tNames.has(n)).length;
+  const interestScore = interestUnion.size === 0 ? 1 : interestIntersect / interestUnion.size;
+
+  return Math.round(
+    (noiseScore * 0.20 +
+     cleanScore * 0.20 +
+     tempScore  * 0.10 +
+     sleepScore * 0.15 +
+     wakeScore  * 0.10 +
+     genreScore * 0.10 +
+     interestScore * 0.15) * 100,
+  );
+}
+
 export default async function ExplorePage() {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session")?.value;
@@ -92,16 +144,38 @@ export default async function ExplorePage() {
   let academicsMap = new Map<string, AcademicsRow>();
   let interestsMap = new Map<string, string[]>();
   let likedIds = new Set<string>();
+  let scoresMap = new Map<string, number>();
 
   if (users.length > 0) {
     const userIds = users.map((u) => u.id);
 
-    const [{ data: allAcademics }, { data: allInterests }, likedResult] = await Promise.all([
+    const [
+      { data: allAcademics },
+      { data: allInterests },
+      likedResult,
+      { data: allLivingStyles },
+      myLivingResult,
+      myInterestsResult,
+    ] = await Promise.all([
       supabaseAdmin.from("academics").select("user_id, academic_year, major, gpa").in("user_id", userIds),
       supabaseAdmin.from("interests").select("user_id, name").in("user_id", userIds),
       currentUserId
         ? supabaseAdmin.from("likes").select("liked_id").eq("liker_id", currentUserId)
         : Promise.resolve({ data: [] as { liked_id: string }[] }),
+      supabaseAdmin
+        .from("living_styles")
+        .select("user_id, noise_level, cleanliness, comfortable_temp, time_sleep, time_wake, music_genre")
+        .in("user_id", userIds),
+      currentUserId
+        ? supabaseAdmin
+            .from("living_styles")
+            .select("user_id, noise_level, cleanliness, comfortable_temp, time_sleep, time_wake, music_genre")
+            .eq("user_id", currentUserId)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      currentUserId
+        ? supabaseAdmin.from("interests").select("name").eq("user_id", currentUserId)
+        : Promise.resolve({ data: [] as { name: string }[] }),
     ]);
 
     academicsMap = new Map((allAcademics ?? []).map((a) => [a.user_id, a as AcademicsRow]));
@@ -113,8 +187,24 @@ export default async function ExplorePage() {
     }
 
     likedIds = new Set(
-      ((likedResult as { data: { liked_id: string }[] | null }).data ?? []).map((r) => r.liked_id)
+      ((likedResult as { data: { liked_id: string }[] | null }).data ?? []).map((r) => r.liked_id),
     );
+
+    const myLiving = (myLivingResult as { data: LivingStyleRow | null }).data;
+    const myInterests = ((myInterestsResult as { data: { name: string }[] | null }).data ?? []).map((i) => i.name);
+    const livingStylesMap = new Map<string, LivingStyleRow>(
+      ((allLivingStyles ?? []) as LivingStyleRow[]).map((row) => [row.user_id, row]),
+    );
+
+    if (myLiving) {
+      for (const user of users) {
+        const theirLiving = livingStylesMap.get(user.id);
+        if (theirLiving) {
+          const theirInterests = interestsMap.get(user.id) ?? [];
+          scoresMap.set(user.id, computeScore(myLiving, theirLiving, myInterests, theirInterests));
+        }
+      }
+    }
   }
 
   return (
@@ -140,15 +230,29 @@ export default async function ExplorePage() {
               const academics = academicsMap.get(profile.id);
               const interests = interestsMap.get(profile.id) ?? [];
               const alreadyLiked = likedIds.has(profile.id);
+              const score = scoresMap.get(profile.id) ?? null;
 
               return (
                 <div
                   key={profile.id}
                   className="relative rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
                 >
-                  <div className="absolute right-4 top-4">
-                    <LikeButton likedId={profile.id} initiallyLiked={alreadyLiked} compact />
-                  </div>
+                  {score !== null && (
+                    <div
+                      className={`absolute right-4 top-4 flex h-[72px] w-[72px] flex-col items-center justify-center rounded-full border-2 shadow-sm ${
+                        score >= 75
+                          ? "border-green-400 bg-green-50 text-green-700"
+                          : score >= 50
+                            ? "border-amber-400 bg-amber-50 text-amber-700"
+                            : "border-red-400 bg-red-50 text-red-700"
+                      }`}
+                    >
+                      <span className="text-xl font-bold leading-none">{score}%</span>
+                      <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-widest leading-none opacity-75">
+                        match
+                      </span>
+                    </div>
+                  )}
 
                   <div
                     className={`mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br ${avatarColor(profile.id)} text-white shadow-lg`}
@@ -161,6 +265,7 @@ export default async function ExplorePage() {
                   <h2 className="text-2xl font-semibold text-gray-900">
                     {profile.first_name} {profile.last_name}
                   </h2>
+
                   {(profile.home_town || profile.home_state) && (
                     <p className="mt-2 text-sm text-gray-600">
                       {[profile.home_town, profile.home_state].filter(Boolean).join(", ")}
@@ -201,12 +306,15 @@ export default async function ExplorePage() {
                     </div>
                   )}
 
-                  <Link
-                    href={`/user/${profile.id}`}
-                    className="mt-6 block rounded-2xl border border-gray-200 py-2 text-center text-sm font-medium text-gray-600 transition hover:bg-gray-50"
-                  >
-                    View Profile →
-                  </Link>
+                  <div className="mt-6 flex gap-2">
+                    <Link
+                      href={`/user/${profile.id}`}
+                      className="flex-1 rounded-2xl border border-gray-200 py-2 text-center text-sm font-medium text-gray-600 transition hover:bg-gray-50"
+                    >
+                      View Profile →
+                    </Link>
+                    <LikeButton likedId={profile.id} initiallyLiked={alreadyLiked} compact />
+                  </div>
                 </div>
               );
             })}
