@@ -119,6 +119,14 @@ export default function SignUpForm() {
     }));
   }
 
+  const passwordRules = [
+    { label: "At least 8 characters",       met: form.password.length >= 8 },
+    { label: "One uppercase letter (A–Z)",   met: /[A-Z]/.test(form.password) },
+    { label: "One lowercase letter (a–z)",   met: /[a-z]/.test(form.password) },
+    { label: "One number (0–9)",             met: /[0-9]/.test(form.password) },
+    { label: "One special character (!@#…)", met: /[^A-Za-z0-9]/.test(form.password) },
+  ];
+
   function validateStepOne(): string {
     if (!form.first_name.trim() || !form.last_name.trim()) {
       return "Please enter your full name.";
@@ -128,8 +136,9 @@ export default function SignUpForm() {
       return "Please use a valid email address.";
     }
 
-    if (form.password.length < 8) {
-      return "Password must be at least 8 characters.";
+    const failedRule = passwordRules.find((r) => !r.met);
+    if (failedRule) {
+      return `Password requirement not met: ${failedRule.label.toLowerCase()}.`;
     }
 
     if (form.password !== form.confirm_password) {
@@ -266,8 +275,10 @@ export default function SignUpForm() {
                   </label>
 
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
-                      <span>Password</span>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                        <span>Password</span>
+                      </label>
                       <input
                         name="password"
                         type="password"
@@ -276,7 +287,17 @@ export default function SignUpForm() {
                         placeholder="At least 8 characters"
                         className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-[#07294d] focus:outline-none focus:ring-2 focus:ring-[#07294d]"
                       />
-                    </label>
+                      {form.password.length > 0 && (
+                        <ul className="space-y-1 pt-1">
+                          {passwordRules.map((rule) => (
+                            <li key={rule.label} className={`flex items-center gap-1.5 text-xs ${rule.met ? "text-green-600" : "text-slate-400"}`}>
+                              <span>{rule.met ? "✓" : "○"}</span>
+                              {rule.label}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                     <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
                       <span>Confirm Password</span>
                       <input
