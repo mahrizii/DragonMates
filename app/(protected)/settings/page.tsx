@@ -14,7 +14,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     async function loadSettings() {
-  const response = await fetch("/api/settings", { method: "GET" });
+  const response = await fetch("/api/users/settings", { method: "GET" });
   const payload = await response.json();
   if (response.ok) {
     setCanReceiveNotifications(payload.can_receive_notifications ?? true);
@@ -48,7 +48,7 @@ export default function SettingsPage() {
     setTimeout(() => setMessage(null), 3000);
   }
   async function handleSave() {
-  const response = await fetch("/api/settings", {
+  const response = await fetch("/api/users/settings", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ first_name: firstName, last_name: lastName, email }),
@@ -63,7 +63,7 @@ export default function SettingsPage() {
 
 async function handleDeleteAccount() {
   setDeleteStatus("deleting");
-  const response = await fetch("/api/settings", { method: "DELETE" });
+  const response = await fetch("/api/users/settings", { method: "DELETE" });
   if (response.ok) {
     window.location.href = "/";
   } else {
@@ -189,6 +189,5 @@ async function handleDeleteAccount() {
       )}
     </div>
   );
-
-        
+       
 }

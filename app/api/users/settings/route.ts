@@ -23,9 +23,11 @@ export async function GET() {
              .single();
 
 if (userError) {
+  console.log("userError:", userError.message);
   return NextResponse.json({ error: userError.message }, { status: 500 });
 }
 
+console.log("authError:", authError, "user:", authData?.user?.id);
 return NextResponse.json({
   email: authData.user.email,
   first_name: userData.first_name,
@@ -54,9 +56,15 @@ return NextResponse.json({
     const { first_name, last_name, email, can_receive_notifications } = body;
 
     if (email && email !== authData.user.email) {
-      const { error: emailError } = await supabase.auth.updateUser({ email });
-      if (emailError) return NextResponse.json({ error: emailError.message }, { status: 500 });
-    }
+  const { createClient } = await import("@supabase/supabase-js");
+  const userSupabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    { global: { headers: { Authorization: `Bearer ${session}` } } }
+  );
+  const { error: emailError } = await userSupabase.auth.updateUser({ email });
+  if (emailError) return NextResponse.json({ error: emailError.message }, { status: 500 });
+}
 
     const updates: Record<string, unknown> = {};
     if (first_name !== undefined) updates.first_name = first_name;
