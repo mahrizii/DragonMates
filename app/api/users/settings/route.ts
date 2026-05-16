@@ -51,20 +51,55 @@ return NextResponse.json({
     }
 
     const body = await req.json();
-    const { can_receive_notifications } = body;
+    const { first_name, last_name, email, can_receive_notifications } = body;
 
-    if (typeof can_receive_notifications !== "boolean") {
-      return NextResponse.json({ error: "Invalid value." }, { status: 400 });
+    if (email && email !== authData.user.email) {
+      const { error: emailError } = await supabase.auth.updateUser({ email });
+      if (emailError) return NextResponse.json({ error: emailError.message }, { status: 500 });
     }
 
-    const { error } = await supabase
+    const updates: Record<string, unknown> = {};
+    if (first_name !== undefined) updates.first_name = first_name;
+    if (last_name !== undefined) updates.last_name = last_name;
+    if (typeof can_receive_notifications === "boolean")
+      updates.can_receive_notifications = can_receive_notifications;
+
+    if (Object.keys(updates).length > 0) {
+      const { error } = await supabase.from("users").update(updates).eq("id", authData.user.id);
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch {
+    return NextResponse.json({ error: "Something went wrong." }, { status: 500 });
+  }
+}
+
+export async function DELETE() {
+  try {
+    const cookieStore = await cookies();
+    const session = cookieStore.get("session")?.value;
+
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
+
+    const { data: authData, error: authError } = await supabase.auth.getUser(session);
+
+    if (authError || !authData.user) {
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
+
+    const { error: dbError } = await supabase
       .from("users")
-      .update({ can_receive_notifications })
+      .delete()
       .eq("id", authData.user.id);
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+
+    const { error: authDeleteError } = await supabase.auth.admin.deleteUser(authData.user.id);
+    if (authDeleteError)
+      return NextResponse.json({ error: authDeleteError.message }, { status: 500 });
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch {
