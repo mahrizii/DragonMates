@@ -1,43 +1,51 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
+  console.log("GET /api/users/settings called");
   try {
     const cookieStore = await cookies();
-    const session = cookieStore.get("session")?.value;
+console.log("cookies done");
+const session = cookieStore.get("session")?.value;
+console.log("session:", session ? "exists" : "missing");
 
     if (!session) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    const { data: authData, error: authError } = await supabase.auth.getUser(session);
+const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(session);
+console.log("authData:", authData?.user?.id, "authError:", authError?.message);
+    if (authError || !authData.user) {
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    }
 
-        if (authError || !authData.user) {
-          return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-        }
-    
-        const { data: userData, error: userError } = await supabase
-             .from("users")
-             .select("first_name, last_name, can_receive_notifications")             .eq("id", authData.user.id)
-             .single();
+    const { data: userData, error: userError } = await supabaseAdmin
+  .from("users")
+  .select("first_name, last_name, can_receive_notifications")
+  .eq("id", authData.user.id)
+  .single();
 
-if (userError) {
-  console.log("userError:", userError.message);
-  return NextResponse.json({ error: userError.message }, { status: 500 });
+console.log("userData:", userData, "userError:", userError?.message);
+
+    if (userError) {
+      return NextResponse.json({ error: userError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      email: authData.user.email,
+      first_name: userData.first_name,
+      last_name: userData.last_name,
+      can_receive_notifications: userData.can_receive_notifications,
+    });
+ } catch (err) {
+    console.log("catch error:", err);
+    return NextResponse.json({ error: "Internal server error." }, { status: 500 });
+  }
 }
 
-console.log("authError:", authError, "user:", authData?.user?.id);
-return NextResponse.json({
-  email: authData.user.email,
-  first_name: userData.first_name,
-  last_name: userData.last_name,
-  can_receive_notifications: userData.can_receive_notifications,
-});      } catch (error) {
-        return NextResponse.json({ error: "Internal server error." }, { status: 500 });
-      }
-    }
-    export async function PATCH(req: NextRequest) {
+
+export async function PATCH(req: NextRequest) {
   try {
     const cookieStore = await cookies();
     const session = cookieStore.get("session")?.value;
@@ -46,7 +54,8 @@ return NextResponse.json({
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    const { data: authData, error: authError } = await supabase.auth.getUser(session);
+    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(session);
+    console.log("auth user:", authData?.user?.id, authData?.user?.email);
 
     if (authError || !authData.user) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
@@ -56,15 +65,15 @@ return NextResponse.json({
     const { first_name, last_name, email, can_receive_notifications } = body;
 
     if (email && email !== authData.user.email) {
-  const { createClient } = await import("@supabase/supabase-js");
-  const userSupabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    { global: { headers: { Authorization: `Bearer ${session}` } } }
-  );
-  const { error: emailError } = await userSupabase.auth.updateUser({ email });
-  if (emailError) return NextResponse.json({ error: emailError.message }, { status: 500 });
-}
+      const { createClient } = await import("@supabase/supabase-js");
+      const userSupabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+        { global: { headers: { Authorization: `Bearer ${session}` } } }
+      );
+      const { error: emailError } = await userSupabase.auth.updateUser({ email });
+      if (emailError) return NextResponse.json({ error: emailError.message }, { status: 500 });
+    }
 
     const updates: Record<string, unknown> = {};
     if (first_name !== undefined) updates.first_name = first_name;
@@ -73,7 +82,7 @@ return NextResponse.json({
       updates.can_receive_notifications = can_receive_notifications;
 
     if (Object.keys(updates).length > 0) {
-      const { error } = await supabase.from("users").update(updates).eq("id", authData.user.id);
+      const { error } = await supabaseAdmin.from("users").update(updates).eq("id", authData.user.id);
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -92,20 +101,20 @@ export async function DELETE() {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    const { data: authData, error: authError } = await supabase.auth.getUser(session);
+    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(session);
 
     if (authError || !authData.user) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    const { error: dbError } = await supabase
+    const { error: dbError } = await supabaseAdmin
       .from("users")
       .delete()
       .eq("id", authData.user.id);
 
     if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
 
-    const { error: authDeleteError } = await supabase.auth.admin.deleteUser(authData.user.id);
+    const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
     if (authDeleteError)
       return NextResponse.json({ error: authDeleteError.message }, { status: 500 });
 
