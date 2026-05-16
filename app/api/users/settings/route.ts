@@ -19,16 +19,19 @@ export async function GET() {
     
         const { data: userData, error: userError } = await supabase
              .from("users")
-             .select("can_receive_notifications")
-             .eq("id", authData.user.id)
+             .select("first_name, last_name, can_receive_notifications")             .eq("id", authData.user.id)
              .single();
 
 if (userError) {
   return NextResponse.json({ error: userError.message }, { status: 500 });
 }
 
-return NextResponse.json({ can_receive_notifications: userData.can_receive_notifications });
-      } catch (error) {
+return NextResponse.json({
+  email: authData.user.email,
+  first_name: userData.first_name,
+  last_name: userData.last_name,
+  can_receive_notifications: userData.can_receive_notifications,
+});      } catch (error) {
         return NextResponse.json({ error: "Internal server error." }, { status: 500 });
       }
     }
