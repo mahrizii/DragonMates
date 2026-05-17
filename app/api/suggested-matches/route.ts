@@ -1,3 +1,6 @@
+// Author: Patrick Melan; May 17, 2026
+// Last modified: Patrick Melan; May 17, 2026
+
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { computeCompatibilityScore, LivingStyleForMatch } from "@/lib/match-score"
 import { cookies } from "next/headers"
