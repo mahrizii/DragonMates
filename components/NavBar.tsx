@@ -8,7 +8,7 @@ import { Bell, Compass, House, Settings, UserRound, Users } from "lucide-react";
 const navItems = [
   { href: "/dashboard", label: "Home", icon: House },
   { href: "/explore", label: "Explore", icon: Compass },
-  { href: "/profile", label: "Profile", icon: UserRound },
+  { href: "/preferences", label: "Profile", icon: UserRound },
   { href: "/matches", label: "Matches", icon: Users },
   { href: "/notifications", label: "Notifications", icon: Bell },
   { href: "/settings", label: "Settings", icon: Settings },
