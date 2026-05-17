@@ -2,25 +2,30 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import {
+  computeCompatibilityScore,
+  matchScoreBadgeClasses,
+  type LivingStyleForMatch,
+} from "@/lib/match-score";
 import LikeButton from "./LikeButton";
 
 const INTEREST_EMOJIS: Record<string, string> = {
-  "Gaming": "🎮",
+  Gaming: "🎮",
   "Gym / Fitness": "💪",
-  "Cooking": "🍳",
-  "Hiking": "🥾",
-  "Reading": "📚",
-  "Music": "🎵",
-  "Art": "🎨",
-  "Photography": "📷",
-  "Travel": "✈️",
-  "Movies": "🎬",
-  "Sports": "⚽",
-  "Coding": "💻",
-  "Dancing": "💃",
-  "Volunteering": "🤝",
-  "Fashion": "👗",
-  "Esports": "🏆",
+  Cooking: "🍳",
+  Hiking: "🥾",
+  Reading: "📚",
+  Music: "🎵",
+  Art: "🎨",
+  Photography: "📷",
+  Travel: "✈️",
+  Movies: "🎬",
+  Sports: "⚽",
+  Coding: "💻",
+  Dancing: "💃",
+  Volunteering: "🤝",
+  Fashion: "👗",
+  Esports: "🏆",
 };
 
 function formatTime(t: string | null | undefined): string {
@@ -35,6 +40,24 @@ function initials(first: string, last: string): string {
   return `${first[0] ?? ""}${last[0] ?? ""}`.toUpperCase();
 }
 
+function toLivingStyleForMatch(row: {
+  noise_level: number;
+  cleanliness: number;
+  comfortable_temp: number;
+  time_sleep: string;
+  time_wake: string;
+  music_genre: string[] | null;
+}): LivingStyleForMatch {
+  return {
+    noise_level: row.noise_level,
+    cleanliness: row.cleanliness,
+    comfortable_temp: row.comfortable_temp,
+    time_sleep: row.time_sleep,
+    time_wake: row.time_wake,
+    music_genre: row.music_genre,
+  };
+}
+
 export default async function UserProfilePage({
   params,
 }: {
@@ -42,7 +65,6 @@ export default async function UserProfilePage({
 }) {
   const { user_id } = await params;
 
-  // Identify the logged-in user from the session cookie
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session")?.value;
   let currentUserId: string | null = null;
@@ -63,7 +85,6 @@ export default async function UserProfilePage({
 
   if (!user) notFound();
 
-  // Check if current user has already liked this profile
   let alreadyLiked = false;
   if (currentUserId && !isSelf) {
     const { data: likeRow } = await supabaseAdmin
@@ -75,69 +96,90 @@ export default async function UserProfilePage({
     alreadyLiked = !!likeRow;
   }
 
+  let compatibilityScore: number | null = null;
+  if (currentUserId && !isSelf && living) {
+    const [{ data: myLiving }, { data: myInterests }] = await Promise.all([
+      supabaseAdmin.from("living_styles").select("*").eq("user_id", currentUserId).maybeSingle(),
+      supabaseAdmin.from("interests").select("name").eq("user_id", currentUserId),
+    ]);
+
+    if (myLiving) {
+      const theirInterests = (interests ?? []).map((i: { name: string }) => i.name);
+      const myInterestNames = (myInterests ?? []).map((i: { name: string }) => i.name);
+      compatibilityScore = computeCompatibilityScore(
+        toLivingStyleForMatch(myLiving),
+        toLivingStyleForMatch(living),
+        myInterestNames,
+        theirInterests,
+      );
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-[#f5f6fa] font-sans">
-      {/* Header */}
-      <div className="bg-[#07294d] px-8 py-5 flex items-center justify-between shadow-md">
-        <div>
-          <h1 className="text-2xl font-bold text-[#ffc600] tracking-wide">DragonMates</h1>
-          <p className="text-blue-200 text-sm mt-0.5">Student profile</p>
-        </div>
+    <div className="bg-[#f5f6fa] font-sans">
+      <div className="mx-auto max-w-3xl px-4 py-5 space-y-4">
         <Link
           href="/explore"
-          className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition"
+          className="inline-flex items-center text-sm font-medium text-[#07294d] hover:text-[#0a3a6e] transition"
         >
           ← Back to Explore
         </Link>
-      </div>
 
-      <div className="max-w-3xl mx-auto px-6 py-10 space-y-6">
-        {/* Profile hero */}
-        <div className="bg-gradient-to-r from-[#07294d] to-[#0a3a6e] rounded-2xl p-8 text-white shadow-lg flex items-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-[#ffc600] flex items-center justify-center shadow-lg shrink-0">
-            <span className="text-2xl font-bold text-[#07294d]">
+        <div className="relative bg-gradient-to-r from-[#07294d] to-[#0a3a6e] rounded-xl p-5 text-white shadow-md flex items-center gap-4">
+          {compatibilityScore !== null && (
+            <div
+              className={`absolute right-4 top-4 flex h-16 w-16 flex-col items-center justify-center rounded-full border-2 shadow-sm ${matchScoreBadgeClasses(compatibilityScore)}`}
+            >
+              <span className="text-lg font-bold leading-none">{compatibilityScore}%</span>
+              <span className="mt-0.5 text-[8px] font-semibold uppercase tracking-widest leading-none opacity-75">
+                match
+              </span>
+            </div>
+          )}
+
+          <div className="w-16 h-16 rounded-full bg-[#ffc600] flex items-center justify-center shadow shrink-0">
+            <span className="text-xl font-bold text-[#07294d]">
               {initials(user.first_name ?? "", user.last_name ?? "")}
             </span>
           </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="text-3xl font-bold">
+
+          <div className="flex-1 min-w-0 pr-20">
+            <h2 className="text-2xl font-bold">
               {user.first_name} {user.last_name}
             </h2>
             {(user.home_town || user.home_state) && (
-              <p className="text-blue-200 mt-1">
+              <p className="text-blue-200 mt-0.5 text-sm">
                 {[user.home_town, user.home_state].filter(Boolean).join(", ")}
               </p>
             )}
           </div>
-          {!isSelf && (
-            <LikeButton likedId={user_id} initiallyLiked={alreadyLiked} />
-          )}
+
+          {!isSelf && <LikeButton likedId={user_id} initiallyLiked={alreadyLiked} />}
         </div>
 
-        {/* Academics */}
         {academics && (
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="bg-[#07294d] px-6 py-4">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-[#07294d] px-4 py-2.5">
               <h3 className="text-[#ffc600] font-semibold uppercase tracking-widest text-xs">
                 Academic Snapshot
               </h3>
             </div>
-            <div className="px-6 py-5 grid grid-cols-2 gap-4 text-sm">
+            <div className="px-4 py-3 grid grid-cols-2 gap-3 text-sm">
               {academics.academic_year && (
                 <div>
-                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-1">Year</p>
+                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-0.5">Year</p>
                   <p className="text-gray-900 font-medium">{academics.academic_year}</p>
                 </div>
               )}
               {academics.major && (
                 <div>
-                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-1">Major</p>
+                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-0.5">Major</p>
                   <p className="text-gray-900 font-medium">{academics.major}</p>
                 </div>
               )}
               {academics.minor?.length > 0 && (
                 <div>
-                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-1">Minor</p>
+                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-0.5">Minor</p>
                   <p className="text-gray-900 font-medium">
                     {Array.isArray(academics.minor) ? academics.minor.join(", ") : academics.minor}
                   </p>
@@ -145,7 +187,7 @@ export default async function UserProfilePage({
               )}
               {academics.gpa != null && (
                 <div>
-                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-1">GPA</p>
+                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-0.5">GPA</p>
                   <p className="text-gray-900 font-medium">{Number(academics.gpa).toFixed(2)}</p>
                 </div>
               )}
@@ -153,49 +195,48 @@ export default async function UserProfilePage({
           </div>
         )}
 
-        {/* Living style */}
         {living && (
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="bg-[#07294d] px-6 py-4">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-[#07294d] px-4 py-2.5">
               <h3 className="text-[#ffc600] font-semibold uppercase tracking-widest text-xs">
                 Living Style
               </h3>
             </div>
-            <div className="px-6 py-5 grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+            <div className="px-4 py-3 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
               <div>
-                <p className="text-gray-500 uppercase tracking-wider text-xs mb-1">Bedtime</p>
+                <p className="text-gray-500 uppercase tracking-wider text-xs mb-0.5">Bedtime</p>
                 <p className="text-gray-900 font-medium">{formatTime(living.time_sleep)}</p>
               </div>
               <div>
-                <p className="text-gray-500 uppercase tracking-wider text-xs mb-1">Wake time</p>
+                <p className="text-gray-500 uppercase tracking-wider text-xs mb-0.5">Wake time</p>
                 <p className="text-gray-900 font-medium">{formatTime(living.time_wake)}</p>
               </div>
               {living.comfortable_temp != null && (
                 <div>
-                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-1">Temp</p>
+                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-0.5">Temp</p>
                   <p className="text-gray-900 font-medium">{living.comfortable_temp}°F</p>
                 </div>
               )}
               {living.noise_level != null && (
                 <div>
-                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-1">Noise</p>
+                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-0.5">Noise</p>
                   <p className="text-gray-900 font-medium">{living.noise_level} / 5</p>
                 </div>
               )}
               {living.cleanliness != null && (
                 <div>
-                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-1">Cleanliness</p>
+                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-0.5">Cleanliness</p>
                   <p className="text-gray-900 font-medium">{living.cleanliness} / 5</p>
                 </div>
               )}
               {living.music_genre?.length > 0 && (
                 <div className="col-span-2 sm:col-span-3">
-                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-2">Music</p>
-                  <div className="flex flex-wrap gap-2">
+                  <p className="text-gray-500 uppercase tracking-wider text-xs mb-1.5">Music</p>
+                  <div className="flex flex-wrap gap-1.5">
                     {living.music_genre.map((g: string) => (
                       <span
                         key={g}
-                        className="rounded-full border border-gray-300 bg-gray-100 px-3 py-1 text-sm text-gray-700"
+                        className="rounded-full border border-gray-300 bg-gray-100 px-2.5 py-0.5 text-sm text-gray-700"
                       >
                         {g}
                       </span>
@@ -207,19 +248,18 @@ export default async function UserProfilePage({
           </div>
         )}
 
-        {/* Interests */}
         {interests && interests.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="bg-[#07294d] px-6 py-4">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-[#07294d] px-4 py-2.5">
               <h3 className="text-[#ffc600] font-semibold uppercase tracking-widest text-xs">
                 Interests
               </h3>
             </div>
-            <div className="px-6 py-5 flex flex-wrap gap-2">
+            <div className="px-4 py-3 flex flex-wrap gap-1.5">
               {interests.map((i: { name: string }) => (
                 <span
                   key={i.name}
-                  className="rounded-full border border-gray-300 bg-gray-100 px-3 py-1 text-sm text-gray-700"
+                  className="rounded-full border border-gray-300 bg-gray-100 px-2.5 py-0.5 text-sm text-gray-700"
                 >
                   {INTEREST_EMOJIS[i.name] ?? ""} {i.name}
                 </span>
