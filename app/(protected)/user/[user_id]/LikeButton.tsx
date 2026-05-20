@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { FaHeart, FaHandshake } from "react-icons/fa";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 type Status = "idle" | "loading" | "liked" | "error" | "unauth";
 
