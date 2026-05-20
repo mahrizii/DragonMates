@@ -75,13 +75,13 @@ export default function LikeButton({
     );
     return (
       <button
-        onClick={status === "liked" ? handleUnlike : handleLike}
-        disabled={status === "loading"}
-        className="text-2xl transition-transform hover:scale-110 disabled:opacity-50"
-        aria-label={status === "liked" ? "Unlike" : "Like"}
-      >
-        {status === "liked" ? "❤️" : status === "loading" ? "⏳" : "🤝"}
-      </button>
+  onClick={status === "liked" ? handleUnlike : handleLike}
+  disabled={status === "loading"}
+  className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#07294d] transition hover:bg-[#0a3a6e] disabled:opacity-50"
+  aria-label={status === "liked" ? "Unlike" : "Like"}
+>
+  {status === "liked" ? <FaHeart size={18} color="#e11d48" /> : status === "loading" ? <AiOutlineLoading3Quarters className="animate-spin" size={18} color="#ffc600" /> : <FaHandshake size={18} color="#ffc600" />}
+</button>
     );
   }
 
@@ -101,7 +101,7 @@ export default function LikeButton({
           disabled={false}
           className="flex items-center gap-2 rounded-lg bg-green-100 px-6 py-3 font-semibold text-green-700 transition hover:bg-red-50 hover:text-red-600"
         >
-          <span>❤️</span> Liked!
+          <FaHeart size={16} color="#e11d48" /> Liked!
         </button>
       </div>
     );
