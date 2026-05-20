@@ -112,9 +112,8 @@ export default function LikeButton({
       <button
         onClick={handleLike}
         disabled={status === "loading"}
-        className="rounded-lg bg-gradient-to-r from-[#07294d] to-[#0a3a6e] px-6 py-3 font-semibold text-white shadow-md transition-all hover:from-[#0a3a6e] hover:to-[#07294d] disabled:opacity-50"
-      >
-        {status === "loading" ? "Sending…" : "🤝 Like"}
+        className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#07294d] to-[#0a3a6e] px-6 py-3 font-semibold text-white shadow-md transition-all hover:from-[#0a3a6e] hover:to-[#07294d] disabled:opacity-50"      >
+        {status === "loading" ? <><AiOutlineLoading3Quarters className="animate-spin" size={16} /> Sending…</> : <><FaHandshake size={16} color="#ffc600" /> Like</>}
       </button>
       {status === "error" && errMsg && (
         <p className="text-xs text-red-500">{errMsg}</p>
