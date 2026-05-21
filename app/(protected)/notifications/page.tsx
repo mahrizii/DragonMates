@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BsCheckCircle } from "react-icons/bs";
 
 type NotificationRecord = {
   id: string;
@@ -75,8 +76,7 @@ async function markAsRead(id: string) {
             {notifications.map((notification) => (
               <li
                 key={notification.id}
-                onClick={() => markAsRead(notification.id)}
-                className={`cursor-pointer rounded-lg border px-4 py-3 ${
+                className={`relative rounded-lg border px-4 py-3 ${
                   notification.read
                     ? "border-gray-200 bg-gray-50"
                     : "border-blue-200 bg-blue-50"
@@ -91,6 +91,14 @@ async function markAsRead(id: string) {
                 <p className="mt-2 text-xs text-gray-500">
                   {new Date(notification.created_at).toLocaleString()}
                 </p>
+                {!notification.read && (
+                  <button
+                    aria-label="Mark as read"
+                    className="absolute right-3 top-3 rounded-full p-1 text-blue-400 hover:bg-blue-100 hover:text-blue-600"
+                  >
+                    <BsCheckCircle className="h-4 w-4" />
+                  </button>
+                )}
               </li>
             ))}
           </ul>
