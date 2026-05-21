@@ -94,6 +94,7 @@ async function markAsRead(id: string) {
                 {!notification.read && (
                   <button
                     aria-label="Mark as read"
+                    onClick={() => markAsRead(notification.id)}
                     className="absolute right-3 top-3 rounded-full p-1 text-blue-400 hover:bg-blue-100 hover:text-blue-600"
                   >
                     <BsCheckCircle className="h-4 w-4" />
