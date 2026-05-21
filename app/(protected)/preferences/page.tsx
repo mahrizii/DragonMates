@@ -276,7 +276,8 @@ export default function PreferencesPage() {
               <select
                 value={academics.academic_year}
                 onChange={(e) => handleAcademics({ academic_year: e.target.value })}
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#ffc600]"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 
+                text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#ffc600]"
               >
                 <option value="">Select…</option>
                 {ACADEMIC_YEARS.map((y) => <option key={y}>{y}</option>)}

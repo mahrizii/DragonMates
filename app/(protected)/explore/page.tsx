@@ -235,11 +235,13 @@ export default async function ExplorePage() {
               return (
                 <div
                   key={profile.id}
-                  className="relative rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
+                  className="relative rounded-[28px] border border-gray-200 bg-white p-6 
+                  shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
                 >
                   {score !== null && (
                     <div
-                      className={`absolute right-4 top-4 flex h-[72px] w-[72px] flex-col items-center justify-center rounded-full border-2 shadow-sm ${
+                      className={`absolute right-4 top-4 flex h-[72px] w-[72px] flex-col 
+                        items-center justify-center rounded-full border-2 shadow-sm ${
                         score >= 75
                           ? "border-green-400 bg-green-50 text-green-700"
                           : score >= 50

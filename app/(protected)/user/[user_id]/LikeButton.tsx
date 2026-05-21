@@ -18,25 +18,35 @@ export default function LikeButton({
   const [status, setStatus] = useState<Status>(initiallyLiked ? "liked" : "idle");
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
+  // Handle Like function; runs when like button is clicked and isn't already "liked"
   async function handleLike() {
+    // set loading status and no error
     setStatus("loading");
     setErrMsg(null);
+    
+    // try sending like request to API (/api/likes)
     try {
       const res = await fetch("/api/likes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ liked_id: likedId }),
       });
+
+      // if response is ok or already liked (409), set status to liked
       if (res.ok || res.status === 409) {
         setStatus("liked");
       } else if (res.status === 401) {
-        setStatus("unauth");
-      } else {
+        setStatus("unauth"); // return 401 if user is not authenticated
+      } 
+      // for other errors, parse message and set error status
+      else {
         const body = await res.json().catch(() => ({}));
         setErrMsg(body.error ?? `Error ${res.status}`);
         setStatus("error");
       }
-    } catch {
+    } 
+    // catch network erros and set error status
+    catch {
       setErrMsg("Network error");
       setStatus("error");
     }
