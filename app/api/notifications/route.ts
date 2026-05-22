@@ -48,6 +48,45 @@ export async function GET(request: Request) {
   }
 }
 
+export async function PATCH(_request: Request) {
+  try {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get("session")?.value;
+
+    if (!sessionToken) {
+      return NextResponse.json(
+        { error: "Missing session token." },
+        { status: 401 },
+      );
+    }
+
+    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(sessionToken);
+    if (authError || !authData.user) {
+      return NextResponse.json(
+        { error: authError?.message || "Could not identify user from session." },
+        { status: 401 },
+      );
+    }
+
+    const { error } = await supabaseAdmin
+      .from("notifications")
+      .update({ read: true })
+      .eq("user_id", authData.user.id)
+      .eq("read", false);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch {
+    return NextResponse.json(
+      { error: "Unexpected server error while marking notifications as read." },
+      { status: 500 },
+    );
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
