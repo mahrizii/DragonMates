@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-[#07294d] to-slate-900 font-sans selection:bg-amber-400/30">
+    <div className="min-h-screen bg-[#07294d] font-sans selection:bg-amber-400/30">
       {/* Navigation Bar */}
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-8">
         <div className="flex items-center gap-2">
@@ -16,7 +16,7 @@ export default function HomePage() {
         <div className="flex items-center gap-4">
           <Link
             href="/login"
-            className="text-sm font-semibold text-slate-200 transition hover:text-white">
+            className="text-sm font-semibold text-blue-200 transition hover:text-white">
             Sign in
           </Link>
           <Link
@@ -37,7 +37,7 @@ export default function HomePage() {
 
           <h1 className="max-w-4xl text-5xl font-bold tracking-tight text-white sm:text-7xl">
             Find your perfect roommate <br className="hidden sm:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">
+            <span className="bg-gradient-to-r from-amber-200 to-amber-400 bg-clip-text text-transparent">
               without the guesswork.
             </span>
           </h1>
@@ -50,71 +50,74 @@ export default function HomePage() {
 
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Link
-              href="/signup"
-              className="rounded-xl bg-amber-400 px-8 py-3.5 text-base font-semibold text-[#07294d] shadow-lg transition hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-amber-500/20">
+              href="/register"
+              className="rounded-xl bg-amber-400 px-8 py-3.5 text-base font-semibold text-[#07294d] shadow-lg transition hover:-translate-y-0.5 hover:bg-amber-300">
               Create your profile
             </Link>
             <Link
-              href="/explore"
-              className="group flex items-center gap-2 rounded-xl border border-blue-700/40 bg-slate-900/50 px-8 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-slate-800/80">
-              Browse profiles
-              <span className="transition-transform group-hover:translate-x-1">
-                →
-              </span>
+              href="/login"
+              className="rounded-xl border border-white/20 px-8 py-3.5 text-base font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/10">
+              Sign in
             </Link>
           </div>
         </div>
 
         {/* Features Grid */}
         <div className="mt-32 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Feature 1 */}
-          <div className="rounded-[28px] border border-blue-700/30 bg-slate-900/60 p-8 backdrop-blur-md transition hover:border-blue-500/50">
-            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-900/50 text-2xl">
+          <div className="rounded-[28px] border border-white/10 bg-white/5 p-8 backdrop-blur-md transition hover:bg-white/10">
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-400/10 text-2xl">
               🎓
             </div>
-            <h3 className="text-xl font-semibold text-white">
-              Academic Alignment
-            </h3>
-            <p className="mt-3 text-slate-400">
+            <h3 className="text-xl font-semibold text-white">Academic Alignment</h3>
+            <p className="mt-3 text-blue-200/70">
               Match with peers in similar majors or academic years to ensure
               your study schedules and workloads sync up perfectly.
             </p>
           </div>
 
-          {/* Feature 2 */}
-          <div className="rounded-[28px] border border-blue-700/30 bg-slate-900/60 p-8 backdrop-blur-md transition hover:border-blue-500/50">
-            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-900/30 text-2xl">
+          <div className="rounded-[28px] border border-white/10 bg-white/5 p-8 backdrop-blur-md transition hover:bg-white/10">
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-400/10 text-2xl">
               🌙
             </div>
             <h3 className="text-xl font-semibold text-white">Lifestyle Sync</h3>
-            <p className="mt-3 text-slate-400">
+            <p className="mt-3 text-blue-200/70">
               Filter by sleep schedules, cleanliness preferences, and noise
               tolerance. No more conflicts over 3 AM alarm clocks.
             </p>
           </div>
 
-          {/* Feature 3 */}
-          <div className="rounded-[28px] border border-blue-700/30 bg-slate-900/60 p-8 backdrop-blur-md transition hover:border-blue-500/50">
-            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-900/30 text-2xl">
+          <div className="rounded-[28px] border border-white/10 bg-white/5 p-8 backdrop-blur-md transition hover:bg-white/10">
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-400/10 text-2xl">
               🎮
             </div>
-            <h3 className="text-xl font-semibold text-white">
-              Shared Interests
-            </h3>
-            <p className="mt-3 text-slate-400">
+            <h3 className="text-xl font-semibold text-white">Shared Interests</h3>
+            <p className="mt-3 text-blue-200/70">
               Connect over shared hobbies like gaming, fitness, or music. Find a
               roommate who is also a great friend.
             </p>
           </div>
         </div>
+
+        {/* About Section */}
+        <div className="mt-32 rounded-[28px] border border-white/10 bg-white/5 p-10 text-center backdrop-blur-md">
+          <h2 className="text-2xl font-bold text-white">About DragonMates</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-blue-200/70">
+            DragonMates is a roommate-matching platform built exclusively for Drexel
+            University students. We use compatibility scoring across lifestyle,
+            academics, and shared interests to help you find a roommate — not just
+            a stranger.
+          </p>
+          <div className="mt-8 text-center">
+            <p className="text-xs font-semibold uppercase tracking-widest text-amber-400">For</p>
+            <p className="mt-2 text-sm font-medium text-white">Drexel University</p>
+            <p className="mt-0.5 text-sm font-medium text-blue-200/60">Philadelphia, PA</p>
+          </div>
+        </div>
       </main>
 
-      {/* Minimal Footer */}
-      <footer className="mt-auto border-t border-blue-900/30 py-8 text-center text-sm text-slate-500">
-        <p>
-          © {new Date().getFullYear()} DragonMates. Built for the campus
-          community.
-        </p>
+      {/* Footer */}
+      <footer className="mt-16 border-t border-white/10 py-8 text-center text-sm text-blue-200/50">
+        <p>© {new Date().getFullYear()} DragonMates · Built for Drexel University</p>
       </footer>
     </div>
   );
