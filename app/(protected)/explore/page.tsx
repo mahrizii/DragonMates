@@ -152,9 +152,9 @@ export default async function ExplorePage({
   type InterestRow = { user_id: string; name: string };
 
   let academicsMap = new Map<string, AcademicsRow>();
-  let interestsMap = new Map<string, string[]>();
+  const interestsMap = new Map<string, string[]>();
   let likedIds = new Set<string>();
-  let scoresMap = new Map<string, number>();
+  const scoresMap = new Map<string, number>();
 
   if (users.length > 0) {
     const userIds = users.map((u) => u.id);
