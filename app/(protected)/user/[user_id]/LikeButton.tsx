@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FaHeart, FaHandshake } from "react-icons/fa";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { Heart, Handshake, Loader2 } from "lucide-react";
 
 type Status = "idle" | "loading" | "liked" | "error" | "unauth";
 
@@ -90,7 +89,7 @@ export default function LikeButton({
   className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#07294d] transition hover:bg-[#0a3a6e] disabled:opacity-50"
   aria-label={status === "liked" ? "Unlike" : "Like"}
 >
-  {status === "liked" ? <FaHeart size={18} color="#e11d48" /> : status === "loading" ? <AiOutlineLoading3Quarters className="animate-spin" size={18} color="#ffc600" /> : <FaHandshake size={18} color="#ffc600" />}
+  {status === "liked" ? <Heart size={18} className="text-rose-600 fill-rose-600" /> : status === "loading" ? <Loader2 size={18} className="animate-spin text-[#ffc600]" /> : <Handshake size={18} className="text-[#ffc600]" />}
 </button>
     );
   }
@@ -111,7 +110,7 @@ export default function LikeButton({
           disabled={false}
           className="flex items-center gap-2 rounded-lg bg-green-100 px-6 py-3 font-semibold text-green-700 transition hover:bg-red-50 hover:text-red-600"
         >
-          <FaHeart size={16} color="#e11d48" /> Liked!
+          <Heart size={16} className="fill-rose-600 text-rose-600" /> Liked!
         </button>
       </div>
     );
@@ -123,7 +122,7 @@ export default function LikeButton({
         onClick={handleLike}
         disabled={status === "loading"}
         className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#07294d] to-[#0a3a6e] px-6 py-3 font-semibold text-white shadow-md transition-all hover:from-[#0a3a6e] hover:to-[#07294d] disabled:opacity-50"      >
-        {status === "loading" ? <><AiOutlineLoading3Quarters className="animate-spin" size={16} /> Sending…</> : <><FaHandshake size={16} color="#ffc600" /> Like</>}
+        {status === "loading" ? <><Loader2 size={16} className="animate-spin" /> Sending…</> : <><Handshake size={16} className="text-[#ffc600]" /> Like</>}
       </button>
       {status === "error" && errMsg && (
         <p className="text-xs text-red-500">{errMsg}</p>
