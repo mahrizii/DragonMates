@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import LikeButton from "@/app/(protected)/user/[user_id]/LikeButton";
+import ExploreFilters from "./ExploreFilters";
 
 export const dynamic = "force-dynamic";
 
@@ -110,7 +112,15 @@ function computeScore(
   );
 }
 
-export default async function ExplorePage() {
+export default async function ExplorePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ year?: string; score?: string; interests?: string }>;
+}) {
+  const { year: yearFilter = "", score: scoreFilter = "", interests: interestsParam = "" } =
+    await searchParams;
+  const interestFilter = interestsParam.split(",").filter(Boolean);
+  const minScore = parseInt(scoreFilter) || 0;
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session")?.value;
 
@@ -207,6 +217,23 @@ export default async function ExplorePage() {
     }
   }
 
+  const hasScores = scoresMap.size > 0;
+
+  const displayedUsers = users.filter((u) => {
+    if (yearFilter) {
+      if (academicsMap.get(u.id)?.academic_year !== yearFilter) return false;
+    }
+    if (minScore > 0) {
+      const s = scoresMap.get(u.id);
+      if (s == null || s < minScore) return false;
+    }
+    if (interestFilter.length > 0) {
+      const userInterests = interestsMap.get(u.id) ?? [];
+      if (!interestFilter.some((i) => userInterests.includes(i))) return false;
+    }
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-[#f5f6fa] font-sans">
       <div className="mx-auto max-w-6xl px-6 py-10">
@@ -220,13 +247,22 @@ export default async function ExplorePage() {
           </p>
         </div>
 
+        <Suspense fallback={null}>
+          <ExploreFilters hasScores={hasScores} />
+        </Suspense>
+
         {users.length === 0 ? (
           <div className="rounded-3xl border border-gray-200 bg-white p-10 text-center text-gray-600">
             No roommate profiles are available at the moment.
           </div>
+        ) : displayedUsers.length === 0 ? (
+          <div className="rounded-3xl border border-gray-200 bg-white p-10 text-center text-gray-600">
+            No profiles match your current filters.{" "}
+            <a href="/explore" className="font-medium text-[#07294d] hover:underline">Clear filters</a>
+          </div>
         ) : (
           <div className="grid gap-6 lg:grid-cols-3">
-            {users.map((profile) => {
+            {displayedUsers.map((profile) => {
               const academics = academicsMap.get(profile.id);
               const interests = interestsMap.get(profile.id) ?? [];
               const alreadyLiked = likedIds.has(profile.id);
