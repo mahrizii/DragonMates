@@ -219,6 +219,12 @@ export default async function ExplorePage({
 
   const hasScores = scoresMap.size > 0;
 
+const suggestedUsers = hasScores
+    ? users
+        .filter((u) => (scoresMap.get(u.id) ?? 0) > 75)
+        .sort((a, b) => (scoresMap.get(b.id) ?? 0) - (scoresMap.get(a.id) ?? 0))
+    : [];
+
   const displayedUsers = users.filter((u) => {
     if (yearFilter) {
       if (academicsMap.get(u.id)?.academic_year !== yearFilter) return false;
@@ -246,6 +252,102 @@ export default async function ExplorePage({
             match for your next housing term.
           </p>
         </div>
+
+        {suggestedUsers.length > 0 && (
+          <div className="mb-10">
+            <h2 className="mb-1 text-2xl font-semibold text-gray-900">Suggested for you</h2>
+            <p className="mb-6 text-sm text-gray-500">Profiles with &gt;75% compatibility based on your living style</p>
+            <div className="grid gap-6 lg:grid-cols-3">
+              {suggestedUsers.map((profile) => {
+                const academics = academicsMap.get(profile.id);
+                const interests = interestsMap.get(profile.id) ?? [];
+                const alreadyLiked = likedIds.has(profile.id);
+                const score = scoresMap.get(profile.id)!;
+
+                return (
+                  <div
+                    key={profile.id}
+                    className="relative rounded-[28px] border-2 border-green-200 bg-white p-6
+                    shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
+                  >
+                    <div
+                      className="absolute right-4 top-4 flex h-[72px] w-[72px] flex-col
+                        items-center justify-center rounded-full border-2 shadow-sm
+                        border-green-400 bg-green-50 text-green-700"
+                    >
+                      <span className="text-xl font-bold leading-none">{score}%</span>
+                      <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-widest leading-none opacity-75">
+                        match
+                      </span>
+                    </div>
+
+                    <div
+                      className={`mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br ${avatarColor(profile.id)} text-white shadow-lg`}
+                    >
+                      <span className="text-3xl font-semibold">
+                        {initials(profile.first_name ?? "", profile.last_name ?? "")}
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl font-semibold text-gray-900">
+                      {profile.first_name} {profile.last_name}
+                    </h3>
+
+                    {(profile.home_town || profile.home_state) && (
+                      <p className="mt-2 text-sm text-gray-600">
+                        {[profile.home_town, profile.home_state].filter(Boolean).join(", ")}
+                      </p>
+                    )}
+
+                    {academics && (
+                      <div className="mt-6 rounded-3xl border border-gray-200 bg-gray-50 p-4">
+                        <p className="text-xs uppercase tracking-[0.18em] text-[#07294d]">
+                          Academic snapshot
+                        </p>
+                        <p className="mt-3 text-sm text-gray-900">
+                          {[academics.academic_year, academics.major].filter(Boolean).join(" · ")}
+                        </p>
+                        {academics.gpa != null && (
+                          <p className="mt-2 text-sm text-gray-600">
+                            GPA {Number(academics.gpa).toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {interests.length > 0 && (
+                      <div className="mt-6 grid gap-2">
+                        <div className="text-xs uppercase tracking-[0.18em] text-[#07294d]">
+                          Shared interests
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {interests.map((name) => (
+                            <span
+                              key={name}
+                              className={`rounded-full border px-3 py-1 text-sm font-medium ${interestColor(name)}`}
+                            >
+                              {INTEREST_EMOJIS[name] ?? ""} {name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-6 flex gap-2">
+                      <Link
+                        href={`/user/${profile.id}`}
+                        className="flex-1 rounded-2xl border border-gray-200 py-2 text-center text-sm font-medium text-gray-600 transition hover:bg-gray-50"
+                      >
+                        View Profile →
+                      </Link>
+                      <LikeButton likedId={profile.id} initiallyLiked={alreadyLiked} compact />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <Suspense fallback={null}>
           <ExploreFilters hasScores={hasScores} />
