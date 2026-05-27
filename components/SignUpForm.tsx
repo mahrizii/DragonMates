@@ -242,7 +242,7 @@ export default function SignUpForm() {
               {step === 1 && (
                 <div className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                    <label className="space-y-2 text-xs font-semibold text-slate-600">
                       <span>First Name</span>
                       <input
                         name="first_name"
@@ -251,7 +251,7 @@ export default function SignUpForm() {
                         placeholder="Jane"
                         className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-[#07294d] focus:outline-none focus:ring-2 focus:ring-[#07294d]"/>
                       </label>
-                    <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                    <label className="space-y-2 text-xs font-semibold text-slate-600">
                       <span>Last Name</span>
                       <input
                         name="last_name"
@@ -262,7 +262,7 @@ export default function SignUpForm() {
                     </label>
                   </div>
 
-                  <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                  <label className="space-y-2 text-xs font-semibold text-slate-600">
                     <span>Email</span>
                     <input
                       name="email"
@@ -276,7 +276,7 @@ export default function SignUpForm() {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <label className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                      <label className="text-xs font-semibold text-slate-600">
                         <span>Password</span>
                       </label>
                       <input
@@ -298,7 +298,7 @@ export default function SignUpForm() {
                         </ul>
                       )}
                     </div>
-                    <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                    <label className="space-y-2 text-xs font-semibold text-slate-600">
                       <span>Confirm Password</span>
                       <input
                         name="confirm_password"
@@ -316,7 +316,7 @@ export default function SignUpForm() {
               {step === 2 && (
                 <div className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                    <label className="space-y-2 text-xs font-semibold text-slate-600">
                       <span>Hometown</span>
                       <input
                         name="home_town"
@@ -326,7 +326,7 @@ export default function SignUpForm() {
                         className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-[#07294d] focus:outline-none focus:ring-2 focus:ring-[#07294d]"
                       />
                     </label>
-                    <label className="space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                    <label className="space-y-2 text-xs font-semibold text-slate-600">
                       <span>Home State</span>
                       <select
                         name="home_state"
@@ -346,13 +346,13 @@ export default function SignUpForm() {
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                      <p className="text-xs font-semibold text-slate-600">
                         Social Links
                       </p>
                       <button
                         type="button"
                         onClick={addSocialLink}
-                        className="text-xs font-semibold text-[#07294d] transition hover:text-amber-500"
+                        className="text-xs font-semibold text-[#07294d] transition hover:text-amber-500 hover:cursor-pointer"
                       >
                         + Add another
                       </button>
@@ -371,7 +371,7 @@ export default function SignUpForm() {
                             <button
                               type="button"
                               onClick={() => removeSocialLink(index)}
-                              className="h-fit rounded-2xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-500 transition hover:bg-red-50"
+                              className="h-fit rounded-2xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-500 transition hover:bg-red-50 hover:cursor-pointer"
                             >
                               Remove
                             </button>
@@ -398,7 +398,7 @@ export default function SignUpForm() {
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="flex-1 rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    className="flex-1 rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:cursor-pointer "
                   >
                     Back
                   </button>
@@ -408,7 +408,7 @@ export default function SignUpForm() {
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="flex-1 rounded-2xl bg-[#07294d] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#0a3a6e]"
+                    className="flex-1 rounded-2xl bg-[#07294d] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#0a3a6e] hover:cursor-pointer"
                   >
                     Continue
                   </button>
@@ -416,15 +416,15 @@ export default function SignUpForm() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 rounded-2xl bg-[#ffc600] px-5 py-3 text-sm font-semibold text-[#07294d] transition hover:bg-[#e6b200] disabled:opacity-60"
+                    className="flex-1 rounded-2xl bg-[#ffc600] px-5 py-3 text-sm font-semibold text-[#07294d] transition hover:bg-[#e6b200] disabled:opacity-60 hover:cursor-pointer"
                   >
                     {loading ? "Creating account..." : "Create account"}
                   </button>
                 )}
               </div>
 
-              <p className="text-center text-xs uppercase tracking-[0.3em] text-slate-400">
-                Already have an account? Contact your admin to access it.
+              <p className="text-center text-xs text-slate-400">
+                Already have an account? contact your admin to access it.
               </p>
             </form>
           </div>
