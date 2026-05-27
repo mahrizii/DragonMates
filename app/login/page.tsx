@@ -62,7 +62,7 @@ export default function LoginPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 px-6 pb-8 sm:px-8">
-              <label className="block space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+              <label className="block space-y-2 text-xs font-semibold text-slate-600">
                 <span>Email</span>
                 <input
                   name="email"
@@ -75,7 +75,7 @@ export default function LoginPage() {
                 />
               </label>
 
-              <label className="block space-y-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+              <label className="block space-y-2 text-xs font-semibold text-slate-600">
                 <span>Password</span>
                 <input
                   name="password"
@@ -100,12 +100,12 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-2xl bg-[#ffc600] px-5 py-3 text-sm font-semibold text-[#07294d] transition hover:bg-[#e6b200] disabled:opacity-60"
+                className="w-full rounded-2xl bg-[#ffc600] px-5 py-3 text-sm font-semibold text-[#07294d] transition hover:bg-[#e6b200] hover:cursor-pointer disabled:opacity-60"
               >
                 {loading ? "Signing in..." : "Sign in"}
               </button>
 
-              <p className="text-center text-xs uppercase tracking-[0.3em] text-slate-400">
+              <p className="text-center text-xs text-slate-400">
                 No account?{" "}
                 <Link href="/register" className="text-[#07294d] hover:text-amber-500 transition">
                   Sign up
