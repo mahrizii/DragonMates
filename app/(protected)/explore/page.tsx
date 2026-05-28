@@ -4,6 +4,7 @@ import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import LikeButton from "@/app/(protected)/user/[user_id]/LikeButton";
 import ExploreFilters from "./ExploreFilters";
+import SuggestedShell from "./SuggestedShell";
 
 export const dynamic = "force-dynamic";
 
@@ -154,6 +155,7 @@ export default async function ExplorePage({
   let academicsMap = new Map<string, AcademicsRow>();
   const interestsMap = new Map<string, string[]>();
   let likedIds = new Set<string>();
+  let dismissedIds = new Set<string>();
   const scoresMap = new Map<string, number>();
 
   if (users.length > 0) {
@@ -166,6 +168,7 @@ export default async function ExplorePage({
       { data: allLivingStyles },
       myLivingResult,
       myInterestsResult,
+      dismissedResult,
     ] = await Promise.all([
       supabaseAdmin.from("academics").select("user_id, academic_year, major, gpa").in("user_id", userIds),
       supabaseAdmin.from("interests").select("user_id, name").in("user_id", userIds),
@@ -186,6 +189,9 @@ export default async function ExplorePage({
       currentUserId
         ? supabaseAdmin.from("interests").select("name").eq("user_id", currentUserId)
         : Promise.resolve({ data: [] as { name: string }[] }),
+      currentUserId
+        ? supabaseAdmin.from("dismissals").select("dismissed_id").eq("user_id", currentUserId)
+        : Promise.resolve({ data: [] as { dismissed_id: string }[] }),
     ]);
 
     academicsMap = new Map((allAcademics ?? []).map((a) => [a.user_id, a as AcademicsRow]));
@@ -198,6 +204,10 @@ export default async function ExplorePage({
 
     likedIds = new Set(
       ((likedResult as { data: { liked_id: string }[] | null }).data ?? []).map((r) => r.liked_id),
+    );
+
+    dismissedIds = new Set(
+      ((dismissedResult as { data: { dismissed_id: string }[] | null }).data ?? []).map((r) => r.dismissed_id),
     );
 
     const myLiving = (myLivingResult as { data: LivingStyleRow | null }).data;
@@ -219,11 +229,15 @@ export default async function ExplorePage({
 
   const hasScores = scoresMap.size > 0;
 
-const suggestedUsers = hasScores
-    ? users
-        .filter((u) => (scoresMap.get(u.id) ?? 0) > 75)
-        .sort((a, b) => (scoresMap.get(b.id) ?? 0) - (scoresMap.get(a.id) ?? 0))
-    : [];
+  let suggestedId: string | null = null;
+  if (scoresMap.size > 0) {
+    let topScore = -1;
+    for (const u of users) {
+      if (dismissedIds.has(u.id)) continue;
+      const s = scoresMap.get(u.id) ?? -1;
+      if (s > topScore) { topScore = s; suggestedId = u.id; }
+    }
+  }
 
   const displayedUsers = users.filter((u) => {
     if (yearFilter) {
@@ -240,6 +254,21 @@ const suggestedUsers = hasScores
     return true;
   });
 
+  // Sort by score desc (nulls last), then pin suggested to top
+  displayedUsers.sort((a, b) => {
+    const sa = scoresMap.get(a.id) ?? -1;
+    const sb = scoresMap.get(b.id) ?? -1;
+    return sb - sa;
+  });
+
+  if (suggestedId) {
+    const idx = displayedUsers.findIndex((u) => u.id === suggestedId);
+    if (idx > 0) {
+      const [suggested] = displayedUsers.splice(idx, 1);
+      displayedUsers.unshift(suggested);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#f5f6fa] font-sans">
       <div className="mx-auto max-w-6xl px-6 py-10">
@@ -253,103 +282,7 @@ const suggestedUsers = hasScores
           </p>
         </div>
 
-        {suggestedUsers.length > 0 && (
-          <div className="mb-10">
-            <h2 className="mb-1 text-2xl font-semibold text-gray-900">Suggested for you</h2>
-            <p className="mb-6 text-sm text-gray-500">Profiles with &gt;75% compatibility based on your living style</p>
-            <div className="grid gap-6 lg:grid-cols-3">
-              {suggestedUsers.map((profile) => {
-                const academics = academicsMap.get(profile.id);
-                const interests = interestsMap.get(profile.id) ?? [];
-                const alreadyLiked = likedIds.has(profile.id);
-                const score = scoresMap.get(profile.id)!;
-
-                return (
-                  <div
-                    key={profile.id}
-                    className="relative rounded-[28px] border-2 border-green-200 bg-white p-6
-                    shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
-                  >
-                    <div
-                      className="absolute right-4 top-4 flex h-[72px] w-[72px] flex-col
-                        items-center justify-center rounded-full border-2 shadow-sm
-                        border-green-400 bg-green-50 text-green-700"
-                    >
-                      <span className="text-xl font-bold leading-none">{score}%</span>
-                      <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-widest leading-none opacity-75">
-                        match
-                      </span>
-                    </div>
-
-                    <div
-                      className={`mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br ${avatarColor(profile.id)} text-white shadow-lg`}
-                    >
-                      <span className="text-3xl font-semibold">
-                        {initials(profile.first_name ?? "", profile.last_name ?? "")}
-                      </span>
-                    </div>
-
-                    <h3 className="text-2xl font-semibold text-gray-900">
-                      {profile.first_name} {profile.last_name}
-                    </h3>
-
-                    {(profile.home_town || profile.home_state) && (
-                      <p className="mt-2 text-sm text-gray-600">
-                        {[profile.home_town, profile.home_state].filter(Boolean).join(", ")}
-                      </p>
-                    )}
-
-                    {academics && (
-                      <div className="mt-6 rounded-3xl border border-gray-200 bg-gray-50 p-4">
-                        <p className="text-xs uppercase tracking-[0.18em] text-[#07294d]">
-                          Academic snapshot
-                        </p>
-                        <p className="mt-3 text-sm text-gray-900">
-                          {[academics.academic_year, academics.major].filter(Boolean).join(" · ")}
-                        </p>
-                        {academics.gpa != null && (
-                          <p className="mt-2 text-sm text-gray-600">
-                            GPA {Number(academics.gpa).toFixed(2)}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    {interests.length > 0 && (
-                      <div className="mt-6 grid gap-2">
-                        <div className="text-xs uppercase tracking-[0.18em] text-[#07294d]">
-                          Shared interests
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {interests.map((name) => (
-                            <span
-                              key={name}
-                              className={`rounded-full border px-3 py-1 text-sm font-medium ${interestColor(name)}`}
-                            >
-                              {INTEREST_EMOJIS[name] ?? ""} {name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="mt-6 flex gap-2">
-                      <Link
-                        href={`/user/${profile.id}`}
-                        className="flex-1 rounded-2xl border border-gray-200 py-2 text-center text-sm font-medium text-gray-600 transition hover:bg-gray-50"
-                      >
-                        View Profile →
-                      </Link>
-                      <LikeButton likedId={profile.id} initiallyLiked={alreadyLiked} compact />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        <Suspense fallback={null}>
+<Suspense fallback={null}>
           <ExploreFilters hasScores={hasScores} />
         </Suspense>
 
@@ -369,16 +302,13 @@ const suggestedUsers = hasScores
               const interests = interestsMap.get(profile.id) ?? [];
               const alreadyLiked = likedIds.has(profile.id);
               const score = scoresMap.get(profile.id) ?? null;
+              const isSuggested = profile.id === suggestedId;
 
-              return (
-                <div
-                  key={profile.id}
-                  className="relative rounded-[28px] border border-gray-200 bg-white p-6 
-                  shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
-                >
+              const cardBody = (
+                <>
                   {score !== null && (
                     <div
-                      className={`absolute right-4 top-4 flex h-[72px] w-[72px] flex-col 
+                      className={`absolute right-4 top-4 flex h-[72px] w-[72px] flex-col
                         items-center justify-center rounded-full border-2 shadow-sm ${
                         score >= 75
                           ? "border-green-400 bg-green-50 text-green-700"
@@ -455,6 +385,23 @@ const suggestedUsers = hasScores
                     </Link>
                     <LikeButton likedId={profile.id} initiallyLiked={alreadyLiked} compact />
                   </div>
+                </>
+              );
+
+              if (isSuggested) {
+                return (
+                  <SuggestedShell key={profile.id} userId={profile.id}>
+                    {cardBody}
+                  </SuggestedShell>
+                );
+              }
+
+              return (
+                <div
+                  key={profile.id}
+                  className="relative rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
+                >
+                  {cardBody}
                 </div>
               );
             })}
