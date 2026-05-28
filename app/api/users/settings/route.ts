@@ -3,30 +3,24 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-  console.log("GET /api/users/settings called");
   try {
     const cookieStore = await cookies();
-console.log("cookies done");
-const session = cookieStore.get("session")?.value;
-console.log("session:", session ? "exists" : "missing");
+    const session = cookieStore.get("session")?.value;
 
     if (!session) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(session);
-console.log("authData:", authData?.user?.id, "authError:", authError?.message);
+    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(session);
     if (authError || !authData.user) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
     const { data: userData, error: userError } = await supabaseAdmin
-  .from("users")
-  .select("first_name, last_name, can_receive_notifications")
-  .eq("id", authData.user.id)
-  .single();
-
-console.log("userData:", userData, "userError:", userError?.message);
+      .from("users")
+      .select("first_name, last_name, can_receive_notifications")
+      .eq("id", authData.user.id)
+      .single();
 
     if (userError) {
       return NextResponse.json({ error: userError.message }, { status: 500 });
@@ -55,8 +49,6 @@ export async function PATCH(req: NextRequest) {
     }
 
     const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(session);
-    console.log("auth user:", authData?.user?.id, authData?.user?.email);
-
     if (authError || !authData.user) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
@@ -65,13 +57,10 @@ export async function PATCH(req: NextRequest) {
     const { first_name, last_name, email, can_receive_notifications } = body;
 
     if (email && email !== authData.user.email) {
-      const { createClient } = await import("@supabase/supabase-js");
-      const userSupabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-        { global: { headers: { Authorization: `Bearer ${session}` } } }
+      const { error: emailError } = await supabaseAdmin.auth.admin.updateUserById(
+        authData.user.id,
+        { email }
       );
-      const { error: emailError } = await userSupabase.auth.updateUser({ email });
       if (emailError) return NextResponse.json({ error: emailError.message }, { status: 500 });
     }
 

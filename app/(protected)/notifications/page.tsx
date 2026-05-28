@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BsCheckCircle } from "react-icons/bs";
+import { CheckCircle } from "lucide-react";
 
 type NotificationRecord = {
   id: string;
@@ -116,7 +116,7 @@ export default function NotificationsPage() {
         {!loading && !error && notifications.length === 0 && (
           <div className="mt-8 flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-              <BsCheckCircle className="h-7 w-7" aria-hidden="true" />
+              <CheckCircle className="h-7 w-7" aria-hidden="true" />
             </div>
             <h2 className="mt-4 text-lg font-semibold text-gray-900">
               You&apos;re all caught up
@@ -174,7 +174,7 @@ export default function NotificationsPage() {
                       onClick={() => markAsRead(notification.id)}
                       className="absolute right-3 top-3 rounded-full p-1 text-blue-500 hover:bg-blue-100 hover:text-blue-700"
                     >
-                      <BsCheckCircle className="h-4 w-4" />
+                      <CheckCircle className="h-4 w-4" />
                     </button>
                   )}
                 </li>
