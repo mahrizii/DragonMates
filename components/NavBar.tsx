@@ -25,6 +25,21 @@ export default function NavBar() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
+    async function fetchUnread() {
+      try {
+        const res = await fetch("/api/notifications");
+        if (!res.ok) return;
+        const data = await res.json();
+        const count = (data.notifications ?? []).filter((n: { read: boolean }) => !n.read).length;
+        setUnreadCount(count);
+      } catch {
+        // non-critical, fail silently
+      }
+    }
+    fetchUnread();
+  }, [pathname]);
+
+  useEffect(() => {
     const handler = (e: Event) => {
       setUnreadCount((e as CustomEvent).detail);
     };

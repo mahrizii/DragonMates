@@ -51,14 +51,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Notifications are non-critical — fire and don't block the response
-    supabaseAdmin.from("notifications").insert({
-      user_id: liked_id,
-      title: "New anonymous like",
-      body: "Someone liked your profile.",
-      read: false,
-    })
-
     // Check if the liked user has also liked back (mutual like = match)
     const { data: mutualLike } = await supabaseAdmin
       .from("likes")
@@ -67,30 +59,47 @@ export async function POST(request: Request) {
       .eq("liked_id", liker_id)
       .maybeSingle()
 
-    if (mutualLike) {
-      // Fetch both users' names to personalize the match notifications
-      const [{ data: likerUser }, { data: likedUser }] = await Promise.all([
-        supabaseAdmin.from("users").select("first_name, last_name").eq("id", liker_id).single(),
-        supabaseAdmin.from("users").select("first_name, last_name").eq("id", liked_id).single(),
-      ])
+    // Fetch both users' names and notification preferences up front
+    const [{ data: likerUser }, { data: likedUser }] = await Promise.all([
+      supabaseAdmin.from("users").select("first_name, last_name, can_receive_notifications").eq("id", liker_id).single(),
+      supabaseAdmin.from("users").select("first_name, last_name, can_receive_notifications").eq("id", liked_id).single(),
+    ])
 
-      const likerName = likerUser ? `${likerUser.first_name} ${likerUser.last_name}` : "someone"
-      const likedName = likedUser ? `${likedUser.first_name} ${likedUser.last_name}` : "someone"
+    const likerName = likerUser ? `${likerUser.first_name} ${likerUser.last_name}` : "someone"
+    const likedName = likedUser ? `${likedUser.first_name} ${likedUser.last_name}` : "someone"
 
-      // Notify both users of the match
-      supabaseAdmin.from("notifications").insert({
-        user_id: liker_id,
-        title: "It's a match!",
-        body: `You and ${likedName} have matched.`,
-        read: false,
-      })
-
+    // Notifications are non-critical — fire and don't block the response
+    if (likedUser?.can_receive_notifications !== false) {
       supabaseAdmin.from("notifications").insert({
         user_id: liked_id,
-        title: "It's a match!",
-        body: `You and ${likerName} have matched.`,
+        type: "like",
+        title: "New anonymous like",
+        body: "Someone liked your profile.",
         read: false,
       })
+    }
+
+    if (mutualLike) {
+      // Notify both users of the match (respecting their preferences)
+      if (likerUser?.can_receive_notifications !== false) {
+        supabaseAdmin.from("notifications").insert({
+          user_id: liker_id,
+          type: "match",
+          title: "It's a match!",
+          body: `You and ${likedName} have matched.`,
+          read: false,
+        })
+      }
+
+      if (likedUser?.can_receive_notifications !== false) {
+        supabaseAdmin.from("notifications").insert({
+          user_id: liked_id,
+          type: "match",
+          title: "It's a match!",
+          body: `You and ${likerName} have matched.`,
+          read: false,
+        })
+      }
     }
 
     return NextResponse.json({ like: data, matched: !!mutualLike }, { status: 201 })

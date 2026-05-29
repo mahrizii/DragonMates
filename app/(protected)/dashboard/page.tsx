@@ -79,7 +79,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="flex flex-col flex-1 gap-5 overflow-y-auto">
+        <div className="flex flex-col flex-1 gap-5">
           {/* stats row */}
           <div className="grid grid-cols-3 gap-5">
             <StatCard label="Matches" value={matchCount ?? "—"} />

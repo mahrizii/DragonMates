@@ -90,7 +90,7 @@ export async function PATCH(_request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { user_id, title, body: notificationBody } = body ?? {};
+    const { user_id, type, title, body: notificationBody } = body ?? {};
 
     if (!user_id || !title || !notificationBody) {
       return NextResponse.json(
@@ -103,6 +103,7 @@ export async function POST(request: Request) {
       .from("notifications")
       .insert({
         user_id,
+        type: type ?? "general",
         title,
         body: notificationBody,
         read: false,

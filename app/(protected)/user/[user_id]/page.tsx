@@ -117,7 +117,7 @@ export default async function UserProfilePage({
 
   return (
     <div className="bg-[#f5f6fa] font-sans">
-      <div className="mx-auto max-w-3xl px-4 py-5 space-y-4">
+      <div className="mx-auto max-w-3xl px-6 py-6 space-y-5">
         <Link
           href="/explore"
           className="inline-flex items-center text-sm font-medium text-[#07294d] hover:text-[#0a3a6e] transition"
@@ -125,25 +125,14 @@ export default async function UserProfilePage({
           ← Back to Explore
         </Link>
 
-        <div className="relative bg-gradient-to-r from-[#07294d] to-[#0a3a6e] rounded-xl p-5 text-white shadow-md flex items-center gap-4">
-          {compatibilityScore !== null && (
-            <div
-              className={`absolute right-4 top-4 flex h-16 w-16 flex-col items-center justify-center rounded-full border-2 shadow-sm ${matchScoreBadgeClasses(compatibilityScore)}`}
-            >
-              <span className="text-lg font-bold leading-none">{compatibilityScore}%</span>
-              <span className="mt-0.5 text-[8px] font-semibold uppercase tracking-widest leading-none opacity-75">
-                match
-              </span>
-            </div>
-          )}
-
+        <div className="bg-gradient-to-r from-[#07294d] to-[#0a3a6e] rounded-xl p-6 text-white shadow-md flex items-center gap-5">
           <div className="w-16 h-16 rounded-full bg-[#ffc600] flex items-center justify-center shadow shrink-0">
             <span className="text-xl font-bold text-[#07294d]">
               {initials(user.first_name ?? "", user.last_name ?? "")}
             </span>
           </div>
 
-          <div className="flex-1 min-w-0 pr-20">
+          <div className="flex-1 min-w-0">
             <h2 className="text-2xl font-bold">
               {user.first_name} {user.last_name}
             </h2>
@@ -154,17 +143,29 @@ export default async function UserProfilePage({
             )}
           </div>
 
-          {!isSelf && <LikeButton likedId={user_id} initiallyLiked={alreadyLiked} />}
+          <div className="flex flex-col items-center gap-3 shrink-0">
+            {compatibilityScore !== null && (
+              <div
+                className={`flex h-16 w-16 flex-col items-center justify-center rounded-full border-2 shadow-sm ${matchScoreBadgeClasses(compatibilityScore)}`}
+              >
+                <span className="text-lg font-bold leading-none">{compatibilityScore}%</span>
+                <span className="mt-0.5 text-[8px] font-semibold uppercase tracking-widest leading-none opacity-75">
+                  match
+                </span>
+              </div>
+            )}
+            {!isSelf && <LikeButton likedId={user_id} initiallyLiked={alreadyLiked} />}
+          </div>
         </div>
 
         {academics && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="bg-[#07294d] px-4 py-2.5">
+            <div className="bg-[#07294d] px-6 py-5">
               <h3 className="text-[#ffc600] font-semibold uppercase tracking-widest text-xs">
                 Academic Snapshot
               </h3>
             </div>
-            <div className="px-4 py-3 grid grid-cols-2 gap-3 text-sm">
+            <div className="p-6 grid grid-cols-2 gap-5 text-sm">
               {academics.academic_year && (
                 <div>
                   <p className="text-gray-500 uppercase tracking-wider text-xs mb-0.5">Year</p>
@@ -197,12 +198,12 @@ export default async function UserProfilePage({
 
         {living && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="bg-[#07294d] px-4 py-2.5">
+            <div className="bg-[#07294d] px-6 py-5">
               <h3 className="text-[#ffc600] font-semibold uppercase tracking-widest text-xs">
                 Living Style
               </h3>
             </div>
-            <div className="px-4 py-3 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+            <div className="p-6 grid grid-cols-2 sm:grid-cols-3 gap-5 text-sm">
               <div>
                 <p className="text-gray-500 uppercase tracking-wider text-xs mb-0.5">Bedtime</p>
                 <p className="text-gray-900 font-medium">{formatTime(living.time_sleep)}</p>
@@ -250,13 +251,13 @@ export default async function UserProfilePage({
 
         {interests && interests.length > 0 && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="bg-[#07294d] px-4 py-2.5">
+            <div className="bg-[#07294d] px-6 py-5">
               <h3 className="text-[#ffc600] font-semibold uppercase tracking-widest text-xs">
                 Interests
               </h3>
             </div>
-            <div className="px-4 py-3 flex flex-wrap gap-1.5">
-              {interests.map((i: { name: string }) => (
+            <div className="p-6 flex flex-wrap gap-2">
+              {Array.from(new Map(interests.map((i: { name: string }) => [i.name, i])).values()).map((i: { name: string }) => (
                 <span
                   key={i.name}
                   className="rounded-full border border-gray-300 bg-gray-100 px-2.5 py-0.5 text-sm text-gray-700"

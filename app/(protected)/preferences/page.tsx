@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
 
 const ACADEMIC_YEARS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
 
@@ -54,8 +53,6 @@ type Living = {
 };
 
 export default function PreferencesPage() {
-  const router = useRouter();
-
   const [userId, setUserId] = useState<string | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -231,36 +228,7 @@ export default function PreferencesPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f6fa] font-sans">
-      {/* Sticky header */}
-      <div className="sticky top-0 z-20 border-b border-blue-900/20 bg-[#07294d] px-6 py-4 shadow-md">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
-          <div>
-            <h1 className="text-lg font-bold text-[#ffc600]">My Preferences</h1>
-            <p className="text-xs text-blue-300">
-              {saving ? "Saving…" : lastSaved ? `Saved ${formatSaved(lastSaved)}` : "Changes save automatically"}
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              onClick={handleSaveNow}
-              disabled={saving}
-              className="rounded-lg border border-white/20 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-[#0a3a6e] disabled:opacity-50"
-            >
-              {saving ? "Saving…" : "Save now"}
-            </button>
-            {userId && (
-              <button
-                onClick={() => router.push(`/user/${userId}`)}
-                className="rounded-lg bg-[#ffc600] px-4 py-1.5 text-sm font-semibold text-[#07294d] transition hover:bg-[#e6b200]"
-              >
-                Preview →
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+<div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
 
         {/* Academics */}
         <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">

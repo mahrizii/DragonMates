@@ -305,78 +305,80 @@ export default async function ExplorePage({
               const isSuggested = profile.id === suggestedId;
 
               const cardBody = (
-                <>
-                  {score !== null && (
+                <div className="flex h-full flex-col">
+                  <div className="flex-1">
+                    {score !== null && (
+                      <div
+                        className={`absolute right-4 top-4 flex h-[72px] w-[72px] flex-col
+                          items-center justify-center rounded-full border-2 shadow-sm ${
+                          score >= 75
+                            ? "border-green-400 bg-green-50 text-green-700"
+                            : score >= 50
+                              ? "border-amber-400 bg-amber-50 text-amber-700"
+                              : "border-red-400 bg-red-50 text-red-700"
+                        }`}
+                      >
+                        <span className="text-xl font-bold leading-none">{score}%</span>
+                        <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-widest leading-none opacity-75">
+                          match
+                        </span>
+                      </div>
+                    )}
+
                     <div
-                      className={`absolute right-4 top-4 flex h-[72px] w-[72px] flex-col
-                        items-center justify-center rounded-full border-2 shadow-sm ${
-                        score >= 75
-                          ? "border-green-400 bg-green-50 text-green-700"
-                          : score >= 50
-                            ? "border-amber-400 bg-amber-50 text-amber-700"
-                            : "border-red-400 bg-red-50 text-red-700"
-                      }`}
+                      className={`mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br ${avatarColor(profile.id)} text-white shadow-lg`}
                     >
-                      <span className="text-xl font-bold leading-none">{score}%</span>
-                      <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-widest leading-none opacity-75">
-                        match
+                      <span className="text-3xl font-semibold">
+                        {initials(profile.first_name ?? "", profile.last_name ?? "")}
                       </span>
                     </div>
-                  )}
 
-                  <div
-                    className={`mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br ${avatarColor(profile.id)} text-white shadow-lg`}
-                  >
-                    <span className="text-3xl font-semibold">
-                      {initials(profile.first_name ?? "", profile.last_name ?? "")}
-                    </span>
+                    <h2 className="text-2xl font-semibold text-gray-900">
+                      {profile.first_name} {profile.last_name}
+                    </h2>
+
+                    {(profile.home_town || profile.home_state) && (
+                      <p className="mt-2 text-sm text-gray-600">
+                        {[profile.home_town, profile.home_state].filter(Boolean).join(", ")}
+                      </p>
+                    )}
+
+                    {academics && (
+                      <div className="mt-6 rounded-3xl border border-gray-200 bg-gray-50 p-4">
+                        <p className="text-xs uppercase tracking-[0.18em] text-[#07294d]">
+                          Academic snapshot
+                        </p>
+                        <p className="mt-3 text-sm text-gray-900">
+                          {[academics.academic_year, academics.major].filter(Boolean).join(" · ")}
+                        </p>
+                        {academics.gpa != null && (
+                          <p className="mt-2 text-sm text-gray-600">
+                            GPA {Number(academics.gpa).toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {interests.length > 0 && (
+                      <div className="mt-6 grid gap-2">
+                        <div className="text-xs uppercase tracking-[0.18em] text-[#07294d]">
+                          Interests
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {interests.map((name) => (
+                            <span
+                              key={name}
+                              className={`rounded-full border px-3 py-1 text-sm font-medium ${interestColor(name)}`}
+                            >
+                              {INTEREST_EMOJIS[name] ?? ""} {name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <h2 className="text-2xl font-semibold text-gray-900">
-                    {profile.first_name} {profile.last_name}
-                  </h2>
-
-                  {(profile.home_town || profile.home_state) && (
-                    <p className="mt-2 text-sm text-gray-600">
-                      {[profile.home_town, profile.home_state].filter(Boolean).join(", ")}
-                    </p>
-                  )}
-
-                  {academics && (
-                    <div className="mt-6 rounded-3xl border border-gray-200 bg-gray-50 p-4">
-                      <p className="text-xs uppercase tracking-[0.18em] text-[#07294d]">
-                        Academic snapshot
-                      </p>
-                      <p className="mt-3 text-sm text-gray-900">
-                        {[academics.academic_year, academics.major].filter(Boolean).join(" · ")}
-                      </p>
-                      {academics.gpa != null && (
-                        <p className="mt-2 text-sm text-gray-600">
-                          GPA {Number(academics.gpa).toFixed(2)}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {interests.length > 0 && (
-                    <div className="mt-6 grid gap-2">
-                      <div className="text-xs uppercase tracking-[0.18em] text-[#07294d]">
-                        Shared interests
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {interests.map((name) => (
-                          <span
-                            key={name}
-                            className={`rounded-full border px-3 py-1 text-sm font-medium ${interestColor(name)}`}
-                          >
-                            {INTEREST_EMOJIS[name] ?? ""} {name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="mt-6 flex gap-2">
+                  <div className="flex gap-2 pt-6">
                     <Link
                       href={`/user/${profile.id}`}
                       className="flex-1 rounded-2xl border border-gray-200 py-2 text-center text-sm font-medium text-gray-600 transition hover:bg-gray-50"
@@ -385,7 +387,7 @@ export default async function ExplorePage({
                     </Link>
                     <LikeButton likedId={profile.id} initiallyLiked={alreadyLiked} compact />
                   </div>
-                </>
+                </div>
               );
 
               if (isSuggested) {

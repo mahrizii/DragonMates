@@ -75,6 +75,10 @@ export default function NotificationsPage() {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("unread-count", { detail: unreadCount }));
+  }, [unreadCount]);
+
   return (
     <div className="min-h-screen bg-[#f5f6fa] px-6 py-10">
       <div className="mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">

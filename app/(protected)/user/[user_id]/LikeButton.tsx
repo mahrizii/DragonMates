@@ -86,7 +86,7 @@ export default function LikeButton({
       <button
   onClick={status === "liked" ? handleUnlike : handleLike}
   disabled={status === "loading"}
-  className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#07294d] transition hover:bg-[#0a3a6e] disabled:opacity-50"
+  className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#07294d] transition hover:bg-[#0a3a6e] disabled:opacity-50 cursor-pointer"
   aria-label={status === "liked" ? "Unlike" : "Like"}
 >
   {status === "liked" ? <Heart size={18} className="text-rose-600 fill-rose-600" /> : status === "loading" ? <Loader2 size={18} className="animate-spin text-[#ffc600]" /> : <Handshake size={18} className="text-[#ffc600]" />}
@@ -108,7 +108,7 @@ export default function LikeButton({
         <button
           onClick={handleUnlike}
           disabled={false}
-          className="flex items-center gap-2 rounded-lg bg-green-100 px-6 py-3 font-semibold text-green-700 transition hover:bg-red-50 hover:text-red-600"
+          className="flex items-center gap-2 rounded-lg bg-green-100 px-6 py-3 font-semibold text-green-700 transition hover:bg-red-50 hover:text-red-600 cursor-pointer"
         >
           <Heart size={16} className="fill-rose-600 text-rose-600" /> Liked!
         </button>
@@ -121,7 +121,7 @@ export default function LikeButton({
       <button
         onClick={handleLike}
         disabled={status === "loading"}
-        className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#07294d] to-[#0a3a6e] px-6 py-3 font-semibold text-white shadow-md transition-all hover:from-[#0a3a6e] hover:to-[#07294d] disabled:opacity-50"      >
+        className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#07294d] to-[#0a3a6e] px-6 py-3 font-semibold text-white shadow-md transition-all hover:from-[#0a3a6e] hover:to-[#07294d] disabled:opacity-50 cursor-pointer"      >
         {status === "loading" ? <><Loader2 size={16} className="animate-spin" /> Sending…</> : <><Handshake size={16} className="text-[#ffc600]" /> Like</>}
       </button>
       {status === "error" && errMsg && (
